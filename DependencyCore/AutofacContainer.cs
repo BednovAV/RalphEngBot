@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using DataAccessLayer.Interfaces;
+using DataAccessLayer.Services;
 using Microsoft.Extensions.Configuration;
 using System;
 
@@ -25,6 +27,8 @@ namespace DependencyCore
         {
             var builder = new ContainerBuilder();
 
+            builder.RegisterInstance(configuration).As<IConfiguration>();
+
             InitDALRegistrations(builder);
             InitLogicRegistrations(builder);
 
@@ -37,6 +41,7 @@ namespace DependencyCore
 
         private static void InitDALRegistrations(ContainerBuilder builder)
         {
+            builder.RegisterType<UserDAO>().As<IUserDAO>();
         }
     }
 }

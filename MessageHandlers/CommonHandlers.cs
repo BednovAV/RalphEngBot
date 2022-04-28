@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using DataAccessLayer.Interfaces;
 using DependencyCore;
 using System.IO;
 using System.Linq;
@@ -14,21 +15,34 @@ namespace Handlers
 {
     public class CommonHandlers
 	{
-        public IContainer Container => AutofacContainer.GetContainer();
+        public static IUserDAO UserDAO => AutofacContainer.GetContainer().Resolve<IUserDAO>();
         public static async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
             if (message.Type != MessageType.Text)
                 return;
 
-            var action = message.Text.Split(' ').First() switch
+            var user = AuthenticateUser(message.Chat);
+
+            Task<Message> action;
+
+            if (user.State == Entities.UserState.WaitingNewName)
             {
-                "/inline" => SendInlineKeyboard(botClient, message),
-                "/keyboard" => SendReplyKeyboard(botClient, message),
-                "/remove" => RemoveKeyboard(botClient, message),
-                "/photo" => SendFile(botClient, message),
-                "/request" => RequestContactAndLocation(botClient, message),
-                _ => Usage(botClient, message)
-            };
+                action = RenameUser(botClient, message, user);
+            }
+            else
+            {
+                action = message.Text.Split(' ').First() switch
+                {
+                    "/inline" => SendInlineKeyboard(botClient, message),
+                    "/keyboard" => SendReplyKeyboard(botClient, message),
+                    "/remove" => RemoveKeyboard(botClient, message),
+                    "/photo" => SendFile(botClient, message),
+                    "/request" => RequestContactAndLocation(botClient, message),
+                    "/rename" => RenameUser(botClient, message, user),
+                    _ => Usage(botClient, message, user)
+                };
+            }
+            
             Message sentMessage = await action;
 
             // Send inline keyboard
@@ -106,6 +120,7 @@ namespace Handlers
                     {
                     KeyboardButton.WithRequestLocation("Location"),
                     KeyboardButton.WithRequestContact("Contact"),
+                    KeyboardButton.WithRequestPoll("Pool"),
                     });
 
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
@@ -113,19 +128,58 @@ namespace Handlers
                                                             replyMarkup: RequestReplyKeyboard);
             }
 
-            static async Task<Message> Usage(ITelegramBotClient botClient, Message message)
+            static async Task<Message> RenameUser(ITelegramBotClient botClient, Message message, Entities.User user)
             {
-                const string usage = "Usage:\n" +
+                string text = string.Empty;
+                if (user.State == Entities.UserState.Default)
+                {
+                    text = "How can I contact you?";
+                    user.State = Entities.UserState.WaitingNewName;
+                    UserDAO.Update(user);
+                }
+                else if (user.State == Entities.UserState.WaitingNewName)
+                {
+                    text = "*new name saved*";
+                    user.State = Entities.UserState.Default;
+                    user.Name = message.Text;
+                    UserDAO.Update(user);
+                }
+
+                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
+                                                            text: text);
+            }
+
+            static async Task<Message> Usage(ITelegramBotClient botClient, Message message, Entities.User user)
+            {
+                string usage = $"Hello, {user.Name}. I can:\n" +
                                      "/inline   - send inline keyboard\n" +
                                      "/keyboard - send custom keyboard\n" +
                                      "/remove   - remove custom keyboard\n" +
                                      "/photo    - send a photo\n" +
-                                     "/request  - request location or contact";
+                                     "/request  - request location or contact\n" +
+                                     "/rename   - change call";
 
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
                                                             text: usage,
                                                             replyMarkup: new ReplyKeyboardRemove());
             }
+        }
+
+        private static Entities.User AuthenticateUser(Chat chat)
+        {
+            var user = UserDAO.GetById(chat.Id);
+            if (user == null)
+            {
+                user = new Entities.User
+                {
+                    Id = chat.Id,
+                    Name = chat.Username
+                };
+
+                UserDAO.Add(user);
+            }
+
+            return user;
         }
 
         // Process Inline Keyboard callback data

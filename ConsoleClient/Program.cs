@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DependencyCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Threading;
@@ -15,7 +16,10 @@ namespace ConsoleClient
 
         static async Task Main(string[] args)
 		{
+            AutofacContainer.InitContainer(Configuration);
+
             var botConfig = Configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
+
             Bot = new TelegramBotClient(botConfig.Token);
             
             var me = await Bot.GetMeAsync();
