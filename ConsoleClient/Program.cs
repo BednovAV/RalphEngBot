@@ -16,12 +16,11 @@ namespace ConsoleClient
 
         static async Task Main(string[] args)
 		{
-            AutofacContainer.InitContainer(Configuration);
-
             var botConfig = Configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
 
             Bot = new TelegramBotClient(botConfig.Token);
-            
+            AutofacContainer.InitContainer(Configuration, Bot);
+
             var me = await Bot.GetMeAsync();
             Console.Title = me.Username;
 

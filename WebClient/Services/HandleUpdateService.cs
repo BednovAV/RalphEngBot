@@ -30,8 +30,8 @@ namespace WebClient.Services
                 // UpdateType.ShippingQuery:
                 // UpdateType.PreCheckoutQuery:
                 // UpdateType.Poll:
-                UpdateType.Message => CommonHandlers.BotOnMessageReceived(_botClient, update.Message),
-                UpdateType.EditedMessage => CommonHandlers.BotOnMessageReceived(_botClient, update.EditedMessage),
+                UpdateType.Message => CommonHandlers.BotOnMessageReceived(update.Message),
+                UpdateType.EditedMessage => CommonHandlers.BotOnMessageReceived(update.EditedMessage),
                 UpdateType.CallbackQuery => CommonHandlers.BotOnCallbackQueryReceived(_botClient, update.CallbackQuery),
                 UpdateType.InlineQuery => CommonHandlers.BotOnInlineQueryReceived(_botClient, update.InlineQuery),
                 UpdateType.ChosenInlineResult => CommonHandlers.BotOnChosenInlineResultReceived(_botClient, update.ChosenInlineResult),

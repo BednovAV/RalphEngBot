@@ -8,7 +8,7 @@ namespace Entities
 {
     public enum UserState
     {
-        Default = 0,
+        WaitingCommand = 0,
         WaitingNewName = 1,
     }
 }

@@ -1,8 +1,12 @@
-﻿using Autofac;
+﻿using AuthenticationCore;
+using Autofac;
 using DataAccessLayer.Interfaces;
 using DataAccessLayer.Services;
+using Entities;
+using LogicLayer.StateStrategy;
 using Microsoft.Extensions.Configuration;
 using System;
+using Telegram.Bot;
 
 namespace DependencyCore
 {
@@ -10,9 +14,9 @@ namespace DependencyCore
     {
         private static IContainer _container = null!;
 
-        public static void InitContainer(IConfiguration configuration)
+        public static void InitContainer(IConfiguration configuration, ITelegramBotClient botClient)
         {
-            _container = BuildContainer(configuration);
+            _container = BuildContainer(configuration, botClient);
         }
 
         public static IContainer GetContainer()
@@ -23,20 +27,29 @@ namespace DependencyCore
             return _container;
         }
 
-        private static IContainer BuildContainer(IConfiguration configuration)
+        private static IContainer BuildContainer(IConfiguration configuration, ITelegramBotClient botClient)
         {
             var builder = new ContainerBuilder();
 
             builder.RegisterInstance(configuration).As<IConfiguration>();
+            builder.RegisterInstance(botClient).As<ITelegramBotClient>();
 
             InitDALRegistrations(builder);
             InitLogicRegistrations(builder);
+            InitCoreRegistrations(builder);
 
             return builder.Build();
         }
 
+        private static void InitCoreRegistrations(ContainerBuilder builder)
+        {
+            builder.RegisterType<AuthenticateCore>().As<IAuthenticationCore>();
+        }
+        
         private static void InitLogicRegistrations(ContainerBuilder builder)
         {
+            builder.RegisterType<WaitingCommandStrategy>().Keyed<IStateStrategy>(WaitingCommandStrategy.State);
+            builder.RegisterType<WaitingNewNameStrategy>().Keyed<IStateStrategy>(WaitingNewNameStrategy.State);
         }
 
         private static void InitDALRegistrations(ContainerBuilder builder)

@@ -33,8 +33,8 @@ namespace ConsoleClient
                 // UpdateType.ShippingQuery:
                 // UpdateType.PreCheckoutQuery:
                 // UpdateType.Poll:
-                UpdateType.Message => CommonHandlers.BotOnMessageReceived(botClient, update.Message),
-                UpdateType.EditedMessage => CommonHandlers.BotOnMessageReceived(botClient, update.EditedMessage),
+                UpdateType.Message => CommonHandlers.BotOnMessageReceived(update.Message),
+                UpdateType.EditedMessage => CommonHandlers.BotOnMessageReceived(update.EditedMessage),
                 UpdateType.CallbackQuery => CommonHandlers.BotOnCallbackQueryReceived(botClient, update.CallbackQuery),
                 UpdateType.InlineQuery => CommonHandlers.BotOnInlineQueryReceived(botClient, update.InlineQuery),
                 UpdateType.ChosenInlineResult => CommonHandlers.BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult),

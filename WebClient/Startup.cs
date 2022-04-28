@@ -15,7 +15,6 @@ namespace WebClient
 		{
 			Configuration = configuration;
 			BotConfig = Configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
-			AutofacContainer.InitContainer(Configuration);
 		}
 
 		public IConfiguration Configuration { get; }
@@ -26,9 +25,16 @@ namespace WebClient
 		{
 			services.AddHostedService<ConfigureWebhook>();
 
+			ITelegramBotClient botClient = null!;
+
 			services.AddHttpClient("tgwebhook")
-				.AddTypedClient<ITelegramBotClient>(httpClient
-					=> new TelegramBotClient(BotConfig.BotToken, httpClient));
+				.AddTypedClient(httpClient => 
+				{
+					botClient = new TelegramBotClient(BotConfig.BotToken, httpClient);
+					return botClient;
+				});
+
+			AutofacContainer.InitContainer(Configuration, botClient);
 
 			services
 				.AddScoped<HandleUpdateService>()
