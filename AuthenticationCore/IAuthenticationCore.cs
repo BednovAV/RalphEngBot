@@ -1,10 +1,11 @@
 ﻿using Entities;
+using Entities.Common;
 using Telegram.Bot.Types;
 
 namespace AuthenticationCore
 {
     public interface IAuthenticationCore
     {
-        Entities.User AuthenticateUser(Chat chat);
+        UserItem AuthenticateUser(Chat chat);
     }
 }

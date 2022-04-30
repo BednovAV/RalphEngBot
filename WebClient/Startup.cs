@@ -31,10 +31,9 @@ namespace WebClient
 				.AddTypedClient(httpClient => 
 				{
 					botClient = new TelegramBotClient(BotConfig.BotToken, httpClient);
+					AutofacContainer.InitContainer(Configuration, botClient);
 					return botClient;
 				});
-
-			AutofacContainer.InitContainer(Configuration, botClient);
 
 			services
 				.AddScoped<HandleUpdateService>()

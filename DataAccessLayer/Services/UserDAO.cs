@@ -1,6 +1,8 @@
 ﻿using DataAccessLayer.Core;
 using DataAccessLayer.Interfaces;
 using Entities;
+using Entities.Common;
+using Helpers;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -16,9 +18,10 @@ namespace DataAccessLayer.Services
         {
         }
 
-        public void Add(User user)
+        public void Add(UserItem user)
         {
-            UseContext(db => db.Users.Add(user));
+            var userDbItem = user.Map<User>();
+            UseContext(db => db.Users.Add(userDbItem));
         }
 
         public void Delete(int id)
@@ -26,14 +29,15 @@ namespace DataAccessLayer.Services
             UseContext(db => db.Users.Remove(new User { Id = id }));
         }
 
-        public User GetById(long id)
+        public UserItem GetById(long id)
         {
-            return UseContext(db => db.Users.Find(id));
+            return UseContext(db => db.Users.Find(id).Map<UserItem>());
         }
 
-        public void Update(User user)
+        public void Update(UserItem user)
         {
-            UseContext(db => db.Users.Update(user));
+            var userDbItem = user.Map<User>();
+            UseContext(db => db.Users.Update(userDbItem));
         }
     }
 }

@@ -9,9 +9,10 @@ namespace DataAccessLayer.Core
 {
     public abstract class BaseDAO
     {
-        private readonly IConfiguration _configuration;
+        protected readonly IConfiguration _configuration;
 
-        private string ConnectionString => _configuration.GetConnectionString("DefaultConnection");
+        private string TypeOfConnection => _configuration.GetSection("DataConfiguration").GetValue<string>("connection");
+        private string ConnectionString => _configuration.GetConnectionString(TypeOfConnection);
 
         protected BaseDAO(IConfiguration configuration)
         {

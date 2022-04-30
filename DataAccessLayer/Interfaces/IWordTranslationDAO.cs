@@ -8,11 +8,9 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Interfaces
 {
-    public interface IUserDAO
+    public interface IWordTranslationDAO
     {
-        void Add(UserItem user);
-        void Update(UserItem user);
-        void Delete(int id);
-        UserItem GetById(long id);
+        //WordTranslation GetById(int id);
+        List<WordItem> GetNewWordsForUser(long userId, int count);
     }
 }

@@ -3,6 +3,8 @@ using Autofac;
 using DataAccessLayer.Interfaces;
 using DataAccessLayer.Services;
 using Entities;
+using LogicLayer.Interfaces;
+using LogicLayer.Services;
 using LogicLayer.StateStrategy;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -50,11 +52,16 @@ namespace DependencyCore
         {
             builder.RegisterType<WaitingCommandStrategy>().Keyed<IStateStrategy>(WaitingCommandStrategy.State);
             builder.RegisterType<WaitingNewNameStrategy>().Keyed<IStateStrategy>(WaitingNewNameStrategy.State);
+
+            builder.RegisterType<WordsLogic>().As<IWordsLogic>();
         }
 
         private static void InitDALRegistrations(ContainerBuilder builder)
         {
             builder.RegisterType<UserDAO>().As<IUserDAO>();
+            builder.RegisterType<WordTranslationDAO>().As<IWordTranslationDAO>();
+            builder.RegisterType<UserWordsDAO>().As<IUserWordsDAO>();
+            builder.RegisterType<AdministrationDAO>().As<IAdministrationDAO>();
         }
     }
 }

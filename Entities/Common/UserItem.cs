@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities
+namespace Entities.Common
 {
-    public class User
+    public class UserItem
     {
         public long Id { get; set; }
         public string Name { get; set; }

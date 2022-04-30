@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Interfaces;
+using Entities.Common;
 using Telegram.Bot.Types;
 
 namespace AuthenticationCore
@@ -6,24 +7,28 @@ namespace AuthenticationCore
     public class AuthenticateCore : IAuthenticationCore
     {
         private readonly IUserDAO _userDAO;
+        private readonly IUserWordsDAO _userWordsDAO;
 
-        public AuthenticateCore(IUserDAO userDAO)
+        public AuthenticateCore(IUserDAO userDAO, IUserWordsDAO userWordsDAO)
         {
             _userDAO = userDAO;
+            _userWordsDAO = userWordsDAO;
         }
 
-        public Entities.User AuthenticateUser(Chat chat)
+        public UserItem AuthenticateUser(Chat chat)
         {
-            var user = _userDAO.GetById(chat.Id);
+            var id = chat.Id;
+            var user = _userDAO.GetById(id);
             if (user == null)
             {
-                user = new Entities.User
+                user = new UserItem
                 {
-                    Id = chat.Id,
+                    Id = id,
                     Name = chat.Username
                 };
 
                 _userDAO.Add(user);
+                _userWordsDAO.InitWordsForUser(id);
             }
 
             return user;

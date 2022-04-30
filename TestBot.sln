@@ -11,17 +11,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{4A46
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageHandlers", "MessageHandlers\MessageHandlers.csproj", "{A165A143-0630-468F-BBB0-000B463CF76F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyCore", "DependencyCore\DependencyCore.csproj", "{2ECF81A7-8FC1-498A-AC34-BCD584311E9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCore", "DependencyCore\DependencyCore.csproj", "{2ECF81A7-8FC1-498A-AC34-BCD584311E9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{17957E4E-35FB-4871-A4D8-2BF1EE4DDCBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{17957E4E-35FB-4871-A4D8-2BF1EE4DDCBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{1125F1C6-9A0D-4575-A0CD-84B4A3B29F66}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entities", "Entities\Entities.csproj", "{1125F1C6-9A0D-4575-A0CD-84B4A3B29F66}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{6EAA5A46-018E-4064-809F-110ED8DC2526}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationCore", "AuthenticationCore\AuthenticationCore.csproj", "{F8D002D9-40F7-4A13-89CB-E17A3808EA73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationCore", "AuthenticationCore\AuthenticationCore.csproj", "{F8D002D9-40F7-4A13-89CB-E17A3808EA73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicLayer", "LogicLayer\LogicLayer.csproj", "{E4D9B2CB-6137-43CB-8216-F91DC2D76058}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogicLayer", "LogicLayer\LogicLayer.csproj", "{E4D9B2CB-6137-43CB-8216-F91DC2D76058}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers", "Helpers\Helpers.csproj", "{78EBBD02-CE30-46B5-8F87-425672B16197}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,10 @@ Global
 		{E4D9B2CB-6137-43CB-8216-F91DC2D76058}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4D9B2CB-6137-43CB-8216-F91DC2D76058}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4D9B2CB-6137-43CB-8216-F91DC2D76058}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78EBBD02-CE30-46B5-8F87-425672B16197}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78EBBD02-CE30-46B5-8F87-425672B16197}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78EBBD02-CE30-46B5-8F87-425672B16197}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78EBBD02-CE30-46B5-8F87-425672B16197}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
