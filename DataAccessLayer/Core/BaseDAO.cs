@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Entities.ConfigSections;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +14,9 @@ namespace DataAccessLayer.Core
     {
         protected readonly IConfiguration _configuration;
 
-        private string TypeOfConnection => _configuration.GetSection("DataConfiguration").GetValue<string>("connection");
-        private string ConnectionString => _configuration.GetConnectionString(TypeOfConnection);
+        protected DataConfigurationConfigSection DataConfiguration
+            => _configuration.GetSection(DataConfigurationConfigSection.SectionName).Get<DataConfigurationConfigSection>();
+        private string ConnectionString => _configuration.GetConnectionString(DataConfiguration.Connection);
 
         protected BaseDAO(IConfiguration configuration)
         {
@@ -34,6 +38,20 @@ namespace DataAccessLayer.Core
                 var result = function(db);
                 db.SaveChanges();
                 return result;
+            }
+        }
+
+        protected void ExecuteSqlNonQuery(string sql)
+        {
+            using (var context = new ApplicationContext(ConnectionString))
+            {
+                using (var command = context.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = sql;
+                    command.CommandType = CommandType.Text;
+                    context.Database.OpenConnection();
+                    command.ExecuteNonQuery();
+                }
             }
         }
     }
