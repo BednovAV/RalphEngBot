@@ -7,5 +7,6 @@ namespace LogicLayer.Interfaces
     public interface IWordsLogic
     {
         Task<Message> LearnWords(UserItem user);
+        Task<Message> SelectWord(Message message, UserItem user);
     }
 }

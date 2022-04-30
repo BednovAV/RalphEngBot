@@ -14,5 +14,6 @@ namespace Entities.Common
         public bool IsSelected { get; set; }
         public bool IsLearned { get; set; }
         public int Recognitions { get; set; }
+        public int Order { get; set; }
     }
 }

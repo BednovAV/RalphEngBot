@@ -1,13 +1,16 @@
 ﻿using DataAccessLayer.Interfaces;
 using DataAccessLayer.Services;
+using Entities;
 using Entities.Common;
 using Entities.ConfigSections;
+using Helpers;
 using LogicLayer.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace LogicLayer.Services
@@ -17,25 +20,47 @@ namespace LogicLayer.Services
         private IUserWordsDAO _userWordsDAO;
         private IWordTranslationDAO _wordTranslationDAO;
         private IConfiguration _configuration;
+        private IUserDAO _userDAO;
+        private ITelegramBotClient _botClient;
 
         public LearnWordsConfigSection LearnWordsConfig => _configuration.GetSection(LearnWordsConfigSection.SectionName).Get<LearnWordsConfigSection>();
 
-        public WordsLogic(IUserWordsDAO userWordsDAO, IConfiguration configuration, IWordTranslationDAO wordTranslationDAO)
+        public WordsLogic(IUserWordsDAO userWordsDAO,
+            IConfiguration configuration,
+            IWordTranslationDAO wordTranslationDAO,
+            IUserDAO userDAO, ITelegramBotClient botClient)
         {
             _userWordsDAO = userWordsDAO;
             _configuration = configuration;
             _wordTranslationDAO = wordTranslationDAO;
+            _userDAO = userDAO;
+            _botClient = botClient;
         }
 
-        public Task<Message> LearnWords(UserItem user)
+        public async Task<Message> LearnWords(UserItem user)
         {
             var notLearnedWords = _userWordsDAO.GetNotLearnedUserWords(user.Id);
-            if (notLearnedWords.Count < LearnWordsConfig.WordsForLearnCount)
+            var countOfSelected = notLearnedWords.Count(w => w.IsSelected);
+            if (countOfSelected < LearnWordsConfig.WordsForLearnCount)
             {
-                return RequestNewWord(user, notLearnedWords);
+                await _botClient.SendMessage(user.Id, $"Нужно еще {LearnWordsConfig.WordsForLearnCount - countOfSelected} слов");
+                return await RequestNewWord(user, notLearnedWords);
             }
 
-            return AskWord(user, notLearnedWords);
+            return await AskWord(user, notLearnedWords);
+        }
+
+        public async Task<Message> SelectWord(Message message, UserItem user)
+        {
+            if (!_userWordsDAO.SelectWord(user.Id, message.Text))
+            {
+                await _botClient.SendMessage(user.Id, "Такого слова нет!");
+            }
+            else
+            {
+                await _botClient.SendMessage(user.Id, $"Слово \"{message.Text}\" успешно добавлено!");
+            }
+            return await LearnWords(user);
         }
 
         private Task<Message> AskWord(UserItem user, List<WordLearnItem> notLearnedWords)
@@ -45,29 +70,26 @@ namespace LogicLayer.Services
 
         private Task<Message> RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)
         {
-            var notSelectedWords = GetNotSelectedWords(user, notLearnedWords);
-
-            throw new NotImplementedException();
+            var notSelectedWords = GetAndUpdateNotSelectedWords(user, notLearnedWords);
+            _userDAO.SwitchUserState(user.Id, UserState.WaitingNewWord);
+            return _botClient.SendMessage(user.Id, "Выберете слово для изучения", notSelectedWords);
         }
 
-        private List<WordLearnItem> GetNotSelectedWords(UserItem user, List<WordLearnItem> notLearnedWords)
+        private string[] GetAndUpdateNotSelectedWords(UserItem user, List<WordLearnItem> notLearnedWords)
         {
-            var notSelectedUserWords = notLearnedWords.Where(w => !w.IsSelected).ToList();
-            if (notLearnedWords.Count < LearnWordsConfig.RequestWordsCount)
+            var notSelectedUserWords = new WordLearnItem[LearnWordsConfig.RequestWordsCount];
+            notLearnedWords.Where(w => !w.IsSelected).ToList().ForEach(w => notSelectedUserWords[w.Order] = w);
+            var updated = false;
+            for (int i = 0; i < LearnWordsConfig.RequestWordsCount; i++)
             {
-                var newWords = _wordTranslationDAO.GetNewWordsForUser(user.Id, LearnWordsConfig.RequestWordsCount - notLearnedWords.Count)
-                    .Select(w => new WordLearnItem 
-                    {
-                        Id = w.Id,
-                        Eng = w.Eng,
-                        Rus = w.Rus,
-                        IsSelected = false,
-                        IsLearned = false,
-                        Recognitions = 0
-                    }).ToList();
-                notSelectedUserWords.AddRange(newWords);
+                if (notSelectedUserWords[i] == null)
+                {
+                    notSelectedUserWords[i] = _wordTranslationDAO.GetNewWordForUser(user.Id).Map<WordLearnItem>();
+                    notSelectedUserWords[i].Order = i;
+                    _userWordsDAO.AddUserWord(user.Id, notSelectedUserWords[i].Id, notSelectedUserWords[i].Order);
+                }
             }
-            return notSelectedUserWords;
+            return notSelectedUserWords.Select(w => w.Eng).ToArray();
         }
     }
 }

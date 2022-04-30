@@ -34,6 +34,16 @@ namespace DataAccessLayer.Services
             return UseContext(db => db.Users.Find(id).Map<UserItem>());
         }
 
+        public void SwitchUserState(long id, UserState state)
+        {
+            UseContext(db =>
+            {
+                var user = db.Users.Find(id);
+                user.State = state;
+                db.Users.Update(user);
+            });
+        }
+
         public void Update(UserItem user)
         {
             var userDbItem = user.Map<User>();

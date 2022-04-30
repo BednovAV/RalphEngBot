@@ -14,5 +14,6 @@ namespace DataAccessLayer.Interfaces
         void Update(UserItem user);
         void Delete(int id);
         UserItem GetById(long id);
+        void SwitchUserState(long id, UserState state);
     }
 }

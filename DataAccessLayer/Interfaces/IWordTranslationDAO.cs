@@ -11,6 +11,6 @@ namespace DataAccessLayer.Interfaces
     public interface IWordTranslationDAO
     {
         //WordTranslation GetById(int id);
-        List<WordItem> GetNewWordsForUser(long userId, int count);
+        WordItem GetNewWordForUser(long userId);
     }
 }

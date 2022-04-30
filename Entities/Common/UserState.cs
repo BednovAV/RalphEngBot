@@ -10,5 +10,6 @@ namespace Entities
     {
         WaitingCommand = 0,
         WaitingNewName = 1,
+        WaitingNewWord = 2,
     }
 }

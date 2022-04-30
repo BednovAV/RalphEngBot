@@ -12,8 +12,10 @@ namespace Entities
             CreateMap<UserWord, WordLearnItem>()
                 .ForMember(d => d.Id, x => x.MapFrom(s => s.WordTranslation.Id))
                 .ForMember(d => d.Eng, x => x.MapFrom(s => s.WordTranslation.Eng))
-                .ForMember(d => d.Rus, x => x.MapFrom(s => s.WordTranslation.Rus));
+                .ForMember(d => d.Rus, x => x.MapFrom(s => s.WordTranslation.Rus))
+                .ReverseMap();
             CreateMap<WordTranslation, WordItem>().ReverseMap();
+            CreateMap<WordItem, WordLearnItem>().ReverseMap();
         }
     }
 }
