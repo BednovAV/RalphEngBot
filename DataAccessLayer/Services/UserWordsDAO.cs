@@ -72,6 +72,7 @@ namespace DataAccessLayer.Services
                 if (selectedUserWord != null)
                 {
                     selectedUserWord.IsSelected = true;
+                    selectedUserWord.Order = null;
                     return true;
                 }
                 return false;

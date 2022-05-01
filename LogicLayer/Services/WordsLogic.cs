@@ -17,11 +17,11 @@ namespace LogicLayer.Services
 {
     public class WordsLogic : IWordsLogic
     {
-        private IUserWordsDAO _userWordsDAO;
-        private IWordTranslationDAO _wordTranslationDAO;
-        private IConfiguration _configuration;
-        private IUserDAO _userDAO;
-        private ITelegramBotClient _botClient;
+        private readonly IUserWordsDAO _userWordsDAO;
+        private readonly IWordTranslationDAO _wordTranslationDAO;
+        private readonly IConfiguration _configuration;
+        private readonly IUserDAO _userDAO;
+        private readonly ITelegramBotClient _botClient;
 
         public LearnWordsConfigSection LearnWordsConfig => _configuration.GetSection(LearnWordsConfigSection.SectionName).Get<LearnWordsConfigSection>();
 
@@ -79,7 +79,6 @@ namespace LogicLayer.Services
         {
             var notSelectedUserWords = new WordLearnItem[LearnWordsConfig.RequestWordsCount];
             notLearnedWords.Where(w => !w.IsSelected).ToList().ForEach(w => notSelectedUserWords[w.Order] = w);
-            var updated = false;
             for (int i = 0; i < LearnWordsConfig.RequestWordsCount; i++)
             {
                 if (notSelectedUserWords[i] == null)
