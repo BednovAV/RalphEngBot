@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Helpers
@@ -15,6 +16,13 @@ namespace Helpers
             }
 
             return result.ToArray();
+        }
+
+        public static T RandomItem<T>(this IEnumerable<T> source)
+        {
+            var rnd = new Random();
+            var sourceArray = source.ToArray();
+            return sourceArray[rnd.Next(sourceArray.Length)];
         }
     }
 }

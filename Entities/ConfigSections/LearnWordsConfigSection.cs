@@ -6,5 +6,6 @@
 
         public int WordsForLearnCount { get; set; }
         public int RequestWordsCount { get; set; }
+        public int RightAnswersForLearned { get; set; }
     }
 }

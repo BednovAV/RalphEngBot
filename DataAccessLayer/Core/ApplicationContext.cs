@@ -1,4 +1,5 @@
 ﻿using Entities;
+using Entities.Common;
 using Entities.DbModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,10 +38,8 @@ namespace DataAccessLayer.Core
                     .HasForeignKey(pt => pt.UserId),
                    j =>
                     {
-                        j.Property(pt => pt.IsLearned).HasDefaultValue(false);
-                        j.Property(pt => pt.IsSelected).HasDefaultValue(false);
+                        j.Property(pt => pt.Status).HasDefaultValue(WordStatus.NotSelected);
                         j.Property(pt => pt.Recognitions).HasDefaultValue(0);
-                        j.Property(pt => pt.IsAsked).HasDefaultValue(false);
                         j.Property(pt => pt.Order).HasDefaultValue(null);
                         j.HasKey(t => new { t.UserId, t.WordTranslationId });
                         j.ToTable("UserWords");

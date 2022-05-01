@@ -53,6 +53,7 @@ namespace DependencyCore
             builder.RegisterType<WaitingCommandStrategy>().Keyed<IStateStrategy>(WaitingCommandStrategy.State);
             builder.RegisterType<WaitingNewNameStrategy>().Keyed<IStateStrategy>(WaitingNewNameStrategy.State);
             builder.RegisterType<WaitingNewWordStrategy>().Keyed<IStateStrategy>(WaitingNewWordStrategy.State);
+            builder.RegisterType<WaitingWordAnswerStrategy>().Keyed<IStateStrategy>(WaitingWordAnswerStrategy.State);
 
             builder.RegisterType<WordsLogic>().As<IWordsLogic>();
         }

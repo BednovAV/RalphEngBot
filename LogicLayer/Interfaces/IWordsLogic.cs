@@ -8,5 +8,6 @@ namespace LogicLayer.Interfaces
     {
         Task<Message> LearnWords(UserItem user);
         Task<Message> SelectWord(Message message, UserItem user);
+        Task<Message> ProcessWordResponse(Message message, UserItem user);
     }
 }

@@ -40,45 +40,93 @@ namespace LogicLayer.Services
         public async Task<Message> LearnWords(UserItem user)
         {
             var notLearnedWords = _userWordsDAO.GetNotLearnedUserWords(user.Id);
-            var countOfSelected = notLearnedWords.Count(w => w.IsSelected);
-            if (countOfSelected < LearnWordsConfig.WordsForLearnCount)
+            var selectedWords = notLearnedWords.Where(w => w.Status.HasFlag(WordStatus.Selected)).ToList();
+            if (selectedWords.Count < LearnWordsConfig.WordsForLearnCount)
             {
-                await _botClient.SendMessage(user.Id, $"Нужно еще {LearnWordsConfig.WordsForLearnCount - countOfSelected} слов");
+                await _botClient.SendMessage(user.Id, $"Осталось слов: {LearnWordsConfig.WordsForLearnCount - selectedWords.Count}");
                 return await RequestNewWord(user, notLearnedWords);
             }
 
-            return await AskWord(user, notLearnedWords);
+            return await AskWord(user, selectedWords);
         }
 
         public async Task<Message> SelectWord(Message message, UserItem user)
         {
-            if (!_userWordsDAO.SelectWord(user.Id, message.Text))
-            {
-                await _botClient.SendMessage(user.Id, "Такого слова нет!");
-            }
-            else
+            if (_userWordsDAO.SelectWord(user.Id, message.Text))
             {
                 await _botClient.SendMessage(user.Id, $"Слово \"{message.Text}\" успешно добавлено!");
             }
+            else
+            {
+                await _botClient.SendMessage(user.Id, "Такого слова нет!");
+            }
+
             return await LearnWords(user);
         }
 
-        private Task<Message> AskWord(UserItem user, List<WordLearnItem> notLearnedWords)
+        public async Task<Message> ProcessWordResponse(Message message, UserItem user)
         {
-            throw new NotImplementedException();
+            var userAnswer = message.Text.Trim().ToLowerInvariant();
+            var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
+            var askedWordRuValues = askedWord.Rus.Split('/')
+                .Select(w => w.Trim().ToLowerInvariant())
+                .ToHashSet();
+
+            if (askedWordRuValues.Contains(userAnswer))
+            {
+                await ProcessRightUserAnswer(user, askedWord);
+            }
+            else if (askedWord.Status.HasFlag(WordStatus.WrongAnswer))
+            {
+                askedWord.Recognitions = 0;
+                askedWord.Status ^= WordStatus.Asked | WordStatus.WrongAnswer;
+                await _botClient.SendMessage(user.Id, $"Вторая ошибка подряд!\nПравильный ответ: {askedWord.Rus}\nСчет слова *{askedWord.Eng}* сброшен(");
+            }
+            else
+            {
+                askedWord.Status |= WordStatus.WrongAnswer;
+                _userWordsDAO.UpdateUserWord(user.Id, askedWord);
+                return await _botClient.SendMessage(user.Id, $"Ответ неправильный, попробуй еще раз");
+            }
+            _userWordsDAO.UpdateUserWord(user.Id, askedWord);
+            return await LearnWords(user);
+        }
+
+        private Task<Message> ProcessRightUserAnswer(UserItem user, WordLearnItem askedWord)
+        {
+            askedWord.Recognitions++;
+            var remainingCount = LearnWordsConfig.RightAnswersForLearned - askedWord.Recognitions;
+            if (remainingCount != 0)
+            {
+                askedWord.Status ^= WordStatus.Asked | WordStatus.WrongAnswer;
+                return _botClient.SendMessage(user.Id, $"Верно! Осталось: {remainingCount}");
+            }
+            else
+            {
+                askedWord.Status = WordStatus.Learned;
+                return _botClient.SendMessage(user.Id, $"Верно! Слово *{askedWord.Eng}* выучено!");
+            }
+        }
+
+        private Task<Message> AskWord(UserItem user, List<WordLearnItem> selectedWords)
+        {
+            var wordForAsking = selectedWords.RandomItem();
+            _userWordsDAO.SetWordIsAsked(user.Id, wordForAsking.Id);
+            _userDAO.SwitchUserState(user.Id, UserState.WaitingWordResponse);
+            return _botClient.SendMessage(user.Id, $"Переведите слово на русский: *{wordForAsking.Eng}*");
         }
 
         private Task<Message> RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)
         {
             var notSelectedWords = GetAndUpdateNotSelectedWords(user, notLearnedWords);
             _userDAO.SwitchUserState(user.Id, UserState.WaitingNewWord);
-            return _botClient.SendMessage(user.Id, "Выберете слово для изучения", notSelectedWords);
+            return _botClient.SendMessage(user.Id, "Выберите слово для изучения", notSelectedWords);
         }
 
         private string[] GetAndUpdateNotSelectedWords(UserItem user, List<WordLearnItem> notLearnedWords)
         {
             var notSelectedUserWords = new WordLearnItem[LearnWordsConfig.RequestWordsCount];
-            notLearnedWords.Where(w => !w.IsSelected).ToList().ForEach(w => notSelectedUserWords[w.Order] = w);
+            notLearnedWords.Where(w => w.Status == WordStatus.NotSelected).ToList().ForEach(w => notSelectedUserWords[w.Order] = w);
             for (int i = 0; i < LearnWordsConfig.RequestWordsCount; i++)
             {
                 if (notSelectedUserWords[i] == null)

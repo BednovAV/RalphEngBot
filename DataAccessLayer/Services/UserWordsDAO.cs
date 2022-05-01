@@ -30,13 +30,16 @@ namespace DataAccessLayer.Services
             .Include(x => x.UserWords)
             .Include(x => x.WordTranslations)
             .First(x => x.Id == userId)
-            .UserWords.Where(w => !w.IsLearned)
+            .UserWords.Where(w => !w.Status.HasFlag(WordStatus.Learned))
             .Map<IEnumerable<WordLearnItem>>().ToList());
         }
 
         public List<WordItem> GetNotSelectedUserWords(long userId)
         {
-            return UseContext(db => db.Users.Find(userId).UserWords.Where(w => !w.IsSelected).Map<List<WordItem>>());
+            return UseContext(db => db.Users
+            .Find(userId)
+            .UserWords.Where(w => w.Status == WordStatus.NotSelected)
+            .Map<List<WordItem>>());
         }
 
         public void InitWordsForUser(long id)
@@ -59,19 +62,19 @@ namespace DataAccessLayer.Services
             });
         }
 
-        public bool SelectWord(long id, string engText)
+        public bool SelectWord(long userId, string engText)
         {
             return UseContext(db =>
             {
                 var selectedUserWord = db.Users
                     .Include(u => u.UserWords)
                     .Include(u => u.WordTranslations)
-                    .FirstOrDefault(u => u.Id == id)
-                    .UserWords.FirstOrDefault(w => !w.IsSelected && w.WordTranslation.Eng == engText);
+                    .FirstOrDefault(u => u.Id == userId)
+                    .UserWords.FirstOrDefault(w => w.Status == WordStatus.NotSelected && w.WordTranslation.Eng == engText);
 
                 if (selectedUserWord != null)
                 {
-                    selectedUserWord.IsSelected = true;
+                    selectedUserWord.Status = WordStatus.Selected;
                     selectedUserWord.Order = null;
                     return true;
                 }
@@ -93,6 +96,41 @@ namespace DataAccessLayer.Services
                     });
             });
 
+        }
+
+        public void SetWordIsAsked(long userId, int wordId)
+        {
+            UseContext(db =>
+                db.Users
+                    .Include(u => u.UserWords)
+                    .First(u => u.Id == userId)
+                    .UserWords.First(w => w.WordTranslationId == wordId)
+                    .Status |= WordStatus.Asked);
+        }
+
+        public WordLearnItem GetAskedUserWord(long userId)
+        {
+            return UseContext(db =>
+                db.Users
+                    .Include(u => u.UserWords)
+                    .Include(u => u.WordTranslations)
+                    .First(u => u.Id == userId)
+                    .UserWords.First(w => w.Status.HasFlag(WordStatus.Asked))
+                    .Map<WordLearnItem>());
+        }
+
+        public void UpdateUserWord(long userId, WordLearnItem updatedUserWord)
+        {
+            UseContext(db =>
+            {
+                var userWord = db.Users
+                    .Include(u => u.UserWords)
+                    .First(u => u.Id == userId)
+                    .UserWords.First(w => w.WordTranslationId == updatedUserWord.Id);
+
+                userWord.Recognitions = updatedUserWord.Recognitions;
+                userWord.Status = updatedUserWord.Status;
+            });
         }
     }
 }

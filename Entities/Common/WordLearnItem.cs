@@ -11,8 +11,7 @@ namespace Entities.Common
         public int Id { get; set; }
         public string Eng { get; set; }
         public string Rus { get; set; }
-        public bool IsSelected { get; set; }
-        public bool IsLearned { get; set; }
+        public WordStatus Status { get; set; }
         public int Recognitions { get; set; }
         public int Order { get; set; }
     }

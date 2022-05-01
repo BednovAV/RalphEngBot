@@ -13,7 +13,10 @@ namespace DataAccessLayer.Interfaces
         List<WordLearnItem> GetNotLearnedUserWords(long userId);
         List<WordItem> GetNotSelectedUserWords(long userId);
         void InitWordsForUser(long id);
-        bool SelectWord(long userId, string text);
+        bool SelectWord(long userId, string engText);
         void AddUserWord(long userId, int wordId, int order);
+        void SetWordIsAsked(long userId, int wordId);
+        WordLearnItem GetAskedUserWord(long userId);
+        void UpdateUserWord(long userId, WordLearnItem updatedUserWord);
     }
 }

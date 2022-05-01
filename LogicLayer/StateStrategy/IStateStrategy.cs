@@ -8,5 +8,6 @@ namespace LogicLayer.StateStrategy
     public interface IStateStrategy
     {
         public Task Action(Message message, UserItem user);
+
     }
 }
