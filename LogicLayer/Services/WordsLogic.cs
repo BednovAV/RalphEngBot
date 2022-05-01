@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -17,6 +18,9 @@ namespace LogicLayer.Services
 {
     public class WordsLogic : IWordsLogic
     {
+        private const string EMOJI_GREEN_CIRCLE = "🟢";
+        private const string EMOJI_RED_CIRCLE = "🔴";
+
         private readonly IUserWordsDAO _userWordsDAO;
         private readonly IWordTranslationDAO _wordTranslationDAO;
         private readonly IConfiguration _configuration;
@@ -43,7 +47,7 @@ namespace LogicLayer.Services
             var selectedWords = notLearnedWords.Where(w => w.Status.HasFlag(WordStatus.Selected)).ToList();
             if (selectedWords.Count < LearnWordsConfig.WordsForLearnCount)
             {
-                await _botClient.SendMessage(user.Id, $"Осталось слов: {LearnWordsConfig.WordsForLearnCount - selectedWords.Count}");
+                await _botClient.SendMessage(user.Id, $"Не хватает слов: {LearnWordsConfig.WordsForLearnCount - selectedWords.Count}");
                 return await RequestNewWord(user, notLearnedWords);
             }
 
@@ -96,16 +100,17 @@ namespace LogicLayer.Services
         {
             askedWord.Recognitions++;
             var remainingCount = LearnWordsConfig.RightAnswersForLearned - askedWord.Recognitions;
+            var replyText = new StringBuilder("Верно!");
             if (remainingCount != 0)
             {
-                askedWord.Status ^= WordStatus.Asked | WordStatus.WrongAnswer;
-                return _botClient.SendMessage(user.Id, $"Верно! Осталось: {remainingCount}");
+                askedWord.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer);
             }
             else
             {
                 askedWord.Status = WordStatus.Learned;
-                return _botClient.SendMessage(user.Id, $"Верно! Слово *{askedWord.Eng}* выучено!");
+                replyText.Append($"\nСлово *{askedWord.Eng}* выучено!");
             }
+            return _botClient.SendMessage(user.Id, replyText.ToString());
         }
 
         private Task<Message> AskWord(UserItem user, List<WordLearnItem> selectedWords)
@@ -113,14 +118,15 @@ namespace LogicLayer.Services
             var wordForAsking = selectedWords.RandomItem();
             _userWordsDAO.SetWordIsAsked(user.Id, wordForAsking.Id);
             _userDAO.SwitchUserState(user.Id, UserState.WaitingWordResponse);
-            return _botClient.SendMessage(user.Id, $"Переведите слово на русский: *{wordForAsking.Eng}*");
+            return _botClient.SendMessage(user.Id, $"Переведите слово на русский: *{wordForAsking.Eng}*\n" +
+                                                   $"Прогресс: {CreateWordProgressBar(wordForAsking)}");
         }
 
         private Task<Message> RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)
         {
             var notSelectedWords = GetAndUpdateNotSelectedWords(user, notLearnedWords);
             _userDAO.SwitchUserState(user.Id, UserState.WaitingNewWord);
-            return _botClient.SendMessage(user.Id, "Выберите слово для изучения", notSelectedWords);
+            return _botClient.SendMessage(user.Id, "Выберите слово для изучения", notSelectedWords.GenerateWordsKeyboard());
         }
 
         private string[] GetAndUpdateNotSelectedWords(UserItem user, List<WordLearnItem> notLearnedWords)
@@ -137,6 +143,12 @@ namespace LogicLayer.Services
                 }
             }
             return notSelectedUserWords.Select(w => w.Eng).ToArray();
+        }
+
+        private string CreateWordProgressBar(WordLearnItem wordForAsking)
+        {
+            return EMOJI_GREEN_CIRCLE.Repeat(wordForAsking.Recognitions) 
+                 + EMOJI_RED_CIRCLE.Repeat(LearnWordsConfig.RightAnswersForLearned - wordForAsking.Recognitions);
         }
     }
 }

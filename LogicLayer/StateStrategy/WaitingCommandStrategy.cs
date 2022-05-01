@@ -2,6 +2,7 @@
 using Entities;
 using Entities.Common;
 using Entities.ConfigSections;
+using Helpers;
 using LogicLayer.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -46,7 +47,7 @@ namespace LogicLayer.StateStrategy
             return message.Text.Split(' ').First() switch
             {
                 "/rename" => RenameUser(message, user),
-                "/learnwords" => StartLearnWords(message, user),
+                "/learnwords" => SwitchToLearnWordsMode(message, user),
                 "/resetdb" => ResetDB(message),
                 _ => Usage(message, user)
             };
@@ -54,8 +55,7 @@ namespace LogicLayer.StateStrategy
 
         private Task<Message> ResetDB(Message message)
         {
-            var responceText = string.Empty;
-
+            string responceText;
             var enteredPass = message.Text.Split(' ').Skip(1).FirstOrDefault();
             if (enteredPass == AdministrationData.Password)
             {
@@ -72,9 +72,10 @@ namespace LogicLayer.StateStrategy
                                                         replyMarkup: new ReplyKeyboardRemove());
         }
 
-        private Task<Message> StartLearnWords(Message message, UserItem user)
+        private Task SwitchToLearnWordsMode(Message message, UserItem user)
         {
-            return _wordsLogic.LearnWords(user);
+            _userDAO.SwitchUserState(user.Id, UserState.LearnWordsMode);
+            return _botClient.SendMessage(user.Id, "Режим изучения слов включен.\n/help - список доступных команд");
         }
 
         private Task<Message> RenameUser(Message message, UserItem user)

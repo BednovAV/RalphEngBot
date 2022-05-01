@@ -12,5 +12,6 @@ namespace Entities
         WaitingNewName = 1,
         WaitingNewWord = 2,
         WaitingWordResponse = 3,
+        LearnWordsMode = 4,
     }
 }
