@@ -37,12 +37,15 @@ namespace LogicLayer.Services.Words
         public MessageData GetRequsetNewWordMsg(IEnumerable<string> notSelectedWords)
             => new MessageData { Text = "Выберите слово для изучения", ReplyMarkup = notSelectedWords.GenerateWordsKeyboard() };
 
-        public MessageData GetAskWordMessage(WordLearnItem wordForAsking)
-            => $"Переведите слово на русский: *{wordForAsking.Eng}*\n{CreateWordProgressBar(wordForAsking)}".ToMessageData();
+        public MessageData GetAskWordMsg(WordLearnItem wordForAsking, Language translateFrom, Language translateTo)
+            => $"Переведите слово на {translateTo.GetDescription()}: *{wordForAsking.GetValue(translateFrom)}*\n{CreateWordProgressBar(wordForAsking)}"
+                    .ToMessageData();
 
         public MessageData GetSecondWrongAnswerMsg(WordLearnItem askedWord) 
             => $"Вторая ошибка подряд!\nПравильный ответ: *{askedWord.Rus}*\nСчет слова *{askedWord.Eng}* сброшен(".ToMessageData();
-        public MessageData GetFirstWrongAnswerMsg() => "Ответ неправильный, попробуй еще раз".ToMessageData();
+        public MessageData GetFirstWrongAnswerMsg() => "Ответ неправильный, попробуй еще раз".ToMessageData(removeKeyboard: false);
+        public MessageData GetAskWordAnswerOptions(string[] answerOptions) 
+            => new MessageData { Text = "Выберите подходящее слово:", ReplyMarkup = answerOptions.GenerateWordsKeyboard() };
 
         private string CreateWordProgressBar(WordLearnItem word)
         {

@@ -19,6 +19,8 @@ namespace LogicLayer.Services
 {
     public class WordsLogic : IWordsLogic
     {
+        private const int COUNT_OF_ANSWER_OPTIONS = 4;
+
         private readonly IUserWordsDAO _userWordsDAO;
         private readonly IWordTranslationDAO _wordTranslationDAO;
         private readonly IConfiguration _configuration;
@@ -77,14 +79,9 @@ namespace LogicLayer.Services
 
         public IEnumerable<MessageData> ProcessWordResponse(Message message, UserItem user)
         {
-            var userAnswer = message.Text.Trim().ToLowerInvariant();
-            var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
-            var askedWordRuValues = askedWord.Rus.Split('/')
-                .Select(w => w.Trim().ToLowerInvariant())
-                .ToHashSet();
-
             List<MessageData> result = new List<MessageData>();
-            if (askedWordRuValues.Contains(userAnswer))
+            var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
+            if (IsCorrectAnswer(message, askedWord))
             {
                 result.Add(ProcessRightUserAnswer(askedWord));
             }
@@ -105,6 +102,23 @@ namespace LogicLayer.Services
             _userWordsDAO.UpdateUserWord(user.Id, askedWord);
             result.AddRange(LearnWords(user));
             return result;
+        }
+
+        private bool IsCorrectAnswer(Message message, WordLearnItem askedWord)
+        {
+            var userAnswer = message.Text.Split('/').First().Trim().ToLowerInvariant();
+            if (askedWord.Recognitions < LearnWordsConfig.FirstLevelPoints + LearnWordsConfig.SecondLevelPoints)
+            {
+                var askedWordRuValues = askedWord.Rus
+                    .Split('/')
+                    .Select(w => w.Trim().ToLowerInvariant())
+                    .ToHashSet();
+                return askedWordRuValues.Contains(userAnswer);
+            }
+            else
+            {
+                return userAnswer.Equals(askedWord.Eng.Trim().ToLowerInvariant());
+            }
         }
 
         private MessageData ProcessRightUserAnswer(WordLearnItem askedWord)
@@ -131,7 +145,35 @@ namespace LogicLayer.Services
             var wordForAsking = selectedWords.RandomItem();
             _userWordsDAO.SetWordIsAsked(user.Id, wordForAsking.Id);
             _userDAO.SwitchUserState(user.Id, UserState.WaitingWordResponse);
-            return new MessageData[] { _messageGenerator.GetAskWordMessage(wordForAsking) };
+            return GetAskWordMessages(wordForAsking);
+        }
+
+        private IEnumerable<MessageData> GetAskWordMessages(WordLearnItem wordForAsking)
+        {
+            var result = new List<MessageData>();
+            if (wordForAsking.Recognitions < LearnWordsConfig.FirstLevelPoints + LearnWordsConfig.SecondLevelPoints)
+            {
+                result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus));
+                if (wordForAsking.Recognitions < LearnWordsConfig.FirstLevelPoints)
+                {
+                    result.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(wordForAsking, Language.Rus)));
+                }
+            }
+            else
+            {
+                result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Rus, Language.Eng));
+            }
+            return result;
+        }
+
+        private string[] CreateAnswerOptions(WordLearnItem wordForAsking, Language lang)
+        {
+            var randomWords = _wordTranslationDAO.GetRandomWords(COUNT_OF_ANSWER_OPTIONS - 1);
+            randomWords.Add(wordForAsking.Map<WordItem>());
+            return randomWords
+                .GetShuffled()
+                .Select(w => lang is Language.Eng ? w.Eng : w.Rus)
+                .ToArray();
         }
 
         private IEnumerable<MessageData> RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)

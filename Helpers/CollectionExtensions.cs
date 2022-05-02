@@ -24,5 +24,32 @@ namespace Helpers
             var sourceArray = source.ToArray();
             return sourceArray[rnd.Next(sourceArray.Length)];
         }
+
+        public static IEnumerable<T> RandomItems<T>(this IEnumerable<T> source, int count)
+        {
+            var rnd = new Random();
+            var sourceArray = source.ToArray();
+            for (int i = 0; i < count; i++)
+            {
+                yield return sourceArray[rnd.Next(sourceArray.Length)];
+            }
+        }
+
+        public static List<T> GetShuffled<T>(this List<T> list)
+        {
+            var rnd = new Random();
+            var result = new List<T>(list);
+
+            int n = result.Count;
+            while (n > 1)
+            {
+                int k = rnd.Next(n--);
+                T temp = result[n];
+                result[n] = result[k];
+                result[k] = temp;
+            }
+
+            return result;
+        }
     }
 }

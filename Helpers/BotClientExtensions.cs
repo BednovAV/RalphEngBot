@@ -14,9 +14,14 @@ namespace Helpers
     public static class BotClientExtensions
     {
 
-        public static Task<Message> SendMessage(this ITelegramBotClient _client, long userId, string text, IReplyMarkup replyMarkup = null)
+        public static Task<Message> SendMessage(this ITelegramBotClient _client, 
+            long userId,
+            string text,
+            bool removeKeyboard,
+            IReplyMarkup replyMarkup = null)
         {
-            replyMarkup ??= new ReplyKeyboardRemove();
+            if (removeKeyboard && replyMarkup is null)
+                replyMarkup = new ReplyKeyboardRemove();
 
             return _client.SendTextMessageAsync(chatId: userId,
                                                 text: GetMarkdownText(text),
@@ -25,7 +30,7 @@ namespace Helpers
         }
         public static Task<Message> SendMessage(this ITelegramBotClient _client, long userId, MessageData message)
         {
-            return _client.SendMessage(userId, message.Text, message.ReplyMarkup);
+            return _client.SendMessage(userId, message.Text, message.RemoveKeyboard, message.ReplyMarkup);
         }
 
         private static string GetMarkdownText(string text)

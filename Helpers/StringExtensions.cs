@@ -15,9 +15,9 @@ namespace Helpers
             return builder.ToString();
         }
 
-        public static MessageData ToMessageData(this string str)
+        public static MessageData ToMessageData(this string str, bool removeKeyboard = true)
         {
-            return new MessageData { Text = str };
+            return new MessageData { Text = str, RemoveKeyboard = removeKeyboard };
         }
     }
 }

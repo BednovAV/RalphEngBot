@@ -25,6 +25,14 @@ namespace DataAccessLayer.Services
             });
         }
 
+        public List<WordItem> GetRandomWords(int count)
+        {
+            return UseContext(db =>
+            {
+                return db.WordTranslations.RandomItems(count).Map<List<WordItem>>();
+            });
+        }
+
         //public WordTranslation GetById(int id)
         //{
         //    return UseContext(db => db.WordTranslations.Find(id));
