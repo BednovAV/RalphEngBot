@@ -19,8 +19,6 @@ namespace LogicLayer.StateStrategy
     public class WaitingCommandStrategy : IStateStrategy
     {
         private readonly IUserDAO _userDAO;
-        private readonly ITelegramBotClient _botClient;
-        private readonly IWordsLogic _wordsLogic;
         private readonly IConfiguration _configuration;
         private readonly IAdministrationDAO _administrationDAO;
 
@@ -28,66 +26,55 @@ namespace LogicLayer.StateStrategy
             => _configuration.GetSection(AdministrationConfigSection.SectionName).Get<AdministrationConfigSection>();
 
         public WaitingCommandStrategy(IUserDAO userDAO,
-            ITelegramBotClient botClient,
-            IWordsLogic wordsLogic,
             IConfiguration configuration,
             IAdministrationDAO administrationDAO)
         {
             _userDAO = userDAO;
-            _botClient = botClient;
-            _wordsLogic = wordsLogic;
             _configuration = configuration;
             _administrationDAO = administrationDAO;
         }
 
         public static UserState State => UserState.WaitingCommand;
 
-        public Task Action(Message message, UserItem user)
+        public IEnumerable<MessageData> Action(Message message, UserItem user)
         {
             return message.Text.Split(' ').First() switch
             {
                 "/rename" => RenameUser(message, user),
-                "/learnwords" => SwitchToLearnWordsMode(message, user),
+                "/learnwords" => SwitchToLearnWordsMode(user),
                 "/resetdb" => ResetDB(message),
                 _ => Usage(message, user)
             };
         }
 
-        private Task<Message> ResetDB(Message message)
+        private IEnumerable<MessageData> ResetDB(Message message)
         {
-            string responceText;
             var enteredPass = message.Text.Split(' ').Skip(1).FirstOrDefault();
             if (enteredPass == AdministrationData.Password)
             {
                 _administrationDAO.ResetDB();
-                responceText = "Database reset successfully";
+                return new MessageData[] { "Database reset successfully".ToMessageData() };
             }
             else
             {
-                responceText = "Invalid password";
-            }
+                return new MessageData[] { "Invalid password".ToMessageData() };
 
-            return _botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                        text: responceText,
-                                                        replyMarkup: new ReplyKeyboardRemove());
+            }
         }
 
-        private Task SwitchToLearnWordsMode(Message message, UserItem user)
+        private IEnumerable<MessageData> SwitchToLearnWordsMode(UserItem user)
         {
             _userDAO.SwitchUserState(user.Id, UserState.LearnWordsMode);
-            return _botClient.SendMessage(user.Id, "Режим изучения слов включен.\n/help - список доступных команд");
+            return new MessageData[] { "Режим изучения слов включен.\n/help - список доступных команд".ToMessageData() };
         }
 
-        private Task<Message> RenameUser(Message message, UserItem user)
+        private IEnumerable<MessageData> RenameUser(Message message, UserItem user)
         {
-            user.State = UserState.WaitingNewName;
-            _userDAO.Update(user);
-
-            return _botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                   text: "How can I contact you?");
+            _userDAO.SwitchUserState(user.Id, UserState.WaitingNewName);
+            return new MessageData[] { "Как я могу к вам обращаться?".ToMessageData() };
         }
 
-        public Task<Message> Usage(Message message, UserItem user)
+        public IEnumerable<MessageData> Usage(Message message, UserItem user)
         {
             string usage = $"Hello, {user.Name}.\n" +
                            $"I can:\n" +
@@ -95,9 +82,7 @@ namespace LogicLayer.StateStrategy
                             "/learnwords - Learn english words\n" +
                             "/resetdb {password} - Reset the database";
 
-            return _botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                        text: usage,
-                                                        replyMarkup: new ReplyKeyboardRemove());
+            return new MessageData[] { usage.ToMessageData() };
         }
     }
 }

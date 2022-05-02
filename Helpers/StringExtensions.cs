@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Entities.Common;
+using System.Text;
 
 namespace Helpers
 {
@@ -12,6 +13,11 @@ namespace Helpers
                 builder.Append(str);
             }
             return builder.ToString();
+        }
+
+        public static MessageData ToMessageData(this string str)
+        {
+            return new MessageData { Text = str };
         }
     }
 }

@@ -23,7 +23,6 @@ namespace LogicLayer.Services
         private readonly IWordTranslationDAO _wordTranslationDAO;
         private readonly IConfiguration _configuration;
         private readonly IUserDAO _userDAO;
-        private readonly ITelegramBotClient _botClient;
         private readonly IWordsMessageGenerator _messageGenerator;
 
         public LearnWordsConfigSection LearnWordsConfig => _configuration.GetSection(LearnWordsConfigSection.SectionName).Get<LearnWordsConfigSection>();
@@ -32,47 +31,51 @@ namespace LogicLayer.Services
             IConfiguration configuration,
             IWordTranslationDAO wordTranslationDAO,
             IUserDAO userDAO, 
-            ITelegramBotClient botClient,
             IWordsMessageGenerator messageGenerator)
         {
             _userWordsDAO = userWordsDAO;
             _configuration = configuration;
             _wordTranslationDAO = wordTranslationDAO;
             _userDAO = userDAO;
-            _botClient = botClient;
             _messageGenerator = messageGenerator;
         }
 
-        public async Task<Message> LearnWords(UserItem user)
+        public IEnumerable<MessageData> LearnWords(UserItem user)
         {
+            var result = new List<MessageData>();
+
             var notLearnedWords = _userWordsDAO.GetNotLearnedUserWords(user.Id);
             var selectedWords = notLearnedWords.Where(w => w.Status.HasFlag(WordStatus.Selected)).ToList();
             if (selectedWords.Count < LearnWordsConfig.WordsForLearnCount)
             {
-                await _botClient.SendMessage(user.Id, _messageGenerator.GetNotEnoughWordsMsg(LearnWordsConfig.WordsForLearnCount - selectedWords.Count));
-                return await RequestNewWord(user, notLearnedWords);
-            }
-
-            return await AskWord(user, selectedWords);
-        }
-
-        public async Task<Message> SelectWord(Message message, UserItem user)
-        {
-            MessageData responceMessage;
-            if (_userWordsDAO.TrySelectWord(user.Id, message.Text))
-            {
-                responceMessage = _messageGenerator.GetWordSuccesfullySelectedMsg(message.Text);
+                result.Add(_messageGenerator.GetNotEnoughWordsMsg(LearnWordsConfig.WordsForLearnCount - selectedWords.Count));
+                result.AddRange(RequestNewWord(user, notLearnedWords));
             }
             else
             {
-                responceMessage = _messageGenerator.GetWordNotFoundMsg();
+                result.AddRange(AskWord(user, selectedWords));
             }
-            await _botClient.SendMessage(user.Id, responceMessage);
 
-            return await LearnWords(user);
+            return result;
         }
 
-        public async Task<Message> ProcessWordResponse(Message message, UserItem user)
+        public IEnumerable<MessageData> SelectWord(Message message, UserItem user)
+        {
+            List<MessageData> result = new List<MessageData>();
+            if (_userWordsDAO.TrySelectWord(user.Id, message.Text))
+            {
+                result.Add(_messageGenerator.GetWordSuccesfullySelectedMsg(message.Text));
+            }
+            else
+            {
+                result.Add(_messageGenerator.GetWordNotFoundMsg());
+            }
+
+            result.AddRange(LearnWords(user));
+            return result;
+        }
+
+        public IEnumerable<MessageData> ProcessWordResponse(Message message, UserItem user)
         {
             var userAnswer = message.Text.Trim().ToLowerInvariant();
             var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
@@ -80,27 +83,28 @@ namespace LogicLayer.Services
                 .Select(w => w.Trim().ToLowerInvariant())
                 .ToHashSet();
 
-            MessageData responceMessage;
+            List<MessageData> result = new List<MessageData>();
             if (askedWordRuValues.Contains(userAnswer))
             {
-                responceMessage = ProcessRightUserAnswer(askedWord);
+                result.Add(ProcessRightUserAnswer(askedWord));
             }
             else if (askedWord.Status.HasFlag(WordStatus.WrongAnswer))
             {
                 askedWord.Recognitions = 0;
                 askedWord.Status ^= WordStatus.Asked | WordStatus.WrongAnswer;
-                responceMessage = _messageGenerator.GetSecondWrongAnswerMsg(askedWord);
+                result.Add(_messageGenerator.GetSecondWrongAnswerMsg(askedWord));
             }
             else
             {
                 askedWord.Status |= WordStatus.WrongAnswer;
                 _userWordsDAO.UpdateUserWord(user.Id, askedWord);
-                return await _botClient.SendMessage(user.Id, _messageGenerator.GetFirstWrongAnswerMsg());
+                result.Add(_messageGenerator.GetFirstWrongAnswerMsg());
+                return result;
             }
 
-            await _botClient.SendMessage(user.Id, responceMessage);
             _userWordsDAO.UpdateUserWord(user.Id, askedWord);
-            return await LearnWords(user);
+            result.AddRange(LearnWords(user));
+            return result;
         }
 
         private MessageData ProcessRightUserAnswer(WordLearnItem askedWord)
@@ -122,20 +126,19 @@ namespace LogicLayer.Services
             return responceMessage;
         }
 
-        private Task<Message> AskWord(UserItem user, List<WordLearnItem> selectedWords)
+        private IEnumerable<MessageData> AskWord(UserItem user, List<WordLearnItem> selectedWords)
         {
             var wordForAsking = selectedWords.RandomItem();
-            var responseMessage = _messageGenerator.GetAskWordMessage(wordForAsking);
             _userWordsDAO.SetWordIsAsked(user.Id, wordForAsking.Id);
             _userDAO.SwitchUserState(user.Id, UserState.WaitingWordResponse);
-            return _botClient.SendMessage(user.Id, responseMessage);
+            return new MessageData[] { _messageGenerator.GetAskWordMessage(wordForAsking) };
         }
 
-        private Task<Message> RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)
+        private IEnumerable<MessageData> RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)
         {
             var notSelectedWords = GetAndUpdateNotSelectedWords(user, notLearnedWords);
             _userDAO.SwitchUserState(user.Id, UserState.WaitingNewWord);
-            return _botClient.SendMessage(user.Id, _messageGenerator.GetRequsetNewWordMsg(notSelectedWords));
+            return new MessageData[] { _messageGenerator.GetRequsetNewWordMsg(notSelectedWords) };
         }
 
         private string[] GetAndUpdateNotSelectedWords(UserItem user, List<WordLearnItem> notLearnedWords)

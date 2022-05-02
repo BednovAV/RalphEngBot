@@ -3,6 +3,7 @@ using Entities;
 using Entities.Common;
 using LogicLayer.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
@@ -22,7 +23,7 @@ namespace LogicLayer.StateStrategy
 
         public static UserState State => UserState.WaitingNewWord;
 
-        public Task Action(Message message, UserItem user)
+        public IEnumerable<MessageData> Action(Message message, UserItem user)
         {
             return message.Text.Split(' ').First() switch
             {
@@ -31,10 +32,10 @@ namespace LogicLayer.StateStrategy
             };
         }
 
-        private Task StopWaiting(UserItem user)
+        private IEnumerable<MessageData> StopWaiting(UserItem user)
         {
             _userDAO.SwitchUserState(user.Id, UserState.WaitingCommand);
-            return Task.CompletedTask;
+            return Enumerable.Empty<MessageData>();
         }
     }
 }

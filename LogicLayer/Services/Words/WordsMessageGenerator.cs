@@ -24,43 +24,25 @@ namespace LogicLayer.Services.Words
             _configuration = configuration;
         }
 
-        public MessageData GetNotEnoughWordsMsg(int notEnoughCount)
-        {
-            return new MessageData { Text = $"Не хватает слов: {notEnoughCount}" };
-        }
+        public MessageData GetNotEnoughWordsMsg(int notEnoughCount) => $"Не хватает слов: {notEnoughCount}".ToMessageData();
 
-        public MessageData GetWordSuccesfullySelectedMsg(string word)
-        {
-            return new MessageData { Text = $"Слово *{word}* успешно добавлено!" };
-        }
+        public MessageData GetWordSuccesfullySelectedMsg(string word) => $"Слово *{word}* успешно добавлено!".ToMessageData();
 
-        public MessageData GetWordNotFoundMsg()
-        {
-            return new MessageData { Text = "Такого слова нет!" };
-        }
+        public MessageData GetWordNotFoundMsg() => "Такого слова нет!".ToMessageData();
 
-        public MessageData GetRightAnswerMsg()
-        {
-            return new MessageData { Text = "Верно!" };
-        }
+        public MessageData GetRightAnswerMsg() => "Верно!".ToMessageData();
 
-        public MessageData GetWordLearnedMsg(string word)
-        {
-            return new MessageData { Text = $"Слово *{word}* выучено! {EMOJI_PARTY_POPPER}" };
-        }
+        public MessageData GetWordLearnedMsg(string word) => $"Слово *{word}* выучено! {EMOJI_PARTY_POPPER}".ToMessageData();
 
         public MessageData GetRequsetNewWordMsg(IEnumerable<string> notSelectedWords)
-        {
-            return new MessageData { Text = "Выберите слово для изучения", ReplyMarkup = notSelectedWords.GenerateWordsKeyboard() };
-        }
+            => new MessageData { Text = "Выберите слово для изучения", ReplyMarkup = notSelectedWords.GenerateWordsKeyboard() };
 
         public MessageData GetAskWordMessage(WordLearnItem wordForAsking)
-        {
-            return new MessageData
-            {
-                Text = $"Переведите слово на русский: *{wordForAsking.Eng}*\n{CreateWordProgressBar(wordForAsking)}"
-            };
-        }
+            => $"Переведите слово на русский: *{wordForAsking.Eng}*\n{CreateWordProgressBar(wordForAsking)}".ToMessageData();
+
+        public MessageData GetSecondWrongAnswerMsg(WordLearnItem askedWord) 
+            => $"Вторая ошибка подряд!\nПравильный ответ: *{askedWord.Rus}*\nСчет слова *{askedWord.Eng}* сброшен(".ToMessageData();
+        public MessageData GetFirstWrongAnswerMsg() => "Ответ неправильный, попробуй еще раз".ToMessageData();
 
         private string CreateWordProgressBar(WordLearnItem word)
         {
@@ -89,15 +71,6 @@ namespace LogicLayer.Services.Words
                  + EMOJI_WHITE_CIRCLE.Repeat(firstLevelRemaining)
                  + EMOJI_YELLOW_CIRCLE.Repeat(secondLevelRemaining)
                  + EMOJI_RED_CIRCLE.Repeat(thirdLevelRemaining);
-        }
-
-        public MessageData GetSecondWrongAnswerMsg(WordLearnItem askedWord)
-        {
-            return new MessageData { Text = $"Вторая ошибка подряд!\nПравильный ответ: *{askedWord.Rus}*\nСчет слова *{askedWord.Eng}* сброшен(" };
-        }
-        public MessageData GetFirstWrongAnswerMsg()
-        {
-            return new MessageData { Text = "Ответ неправильный, попробуй еще раз" };
         }
     }
 }

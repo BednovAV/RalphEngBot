@@ -17,18 +17,16 @@ namespace LogicLayer.StateStrategy
     {
         private readonly IUserDAO _userDAO;
         private readonly IWordsLogic _wordsLogic;
-        private readonly ITelegramBotClient _botClient;
 
-        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic, ITelegramBotClient botClient)
+        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic)
         {
             _userDAO = userDAO;
             _wordsLogic = wordsLogic;
-            _botClient = botClient;
         }
 
         public static UserState State => UserState.LearnWordsMode;
 
-        public Task Action(Message message, UserItem user)
+        public IEnumerable<MessageData> Action(Message message, UserItem user)
         {
             return message.Text.Split(' ').First() switch
             {
@@ -38,19 +36,19 @@ namespace LogicLayer.StateStrategy
             };
         }
 
-        public Task<Message> Usage(Message message)
+        public MessageData[] Usage(Message message)
         {
             string usage = "Доступные команды:\n" +
                            "/startlearn - начать изучение слов\n" +
                            "/back - выйти";
 
-            return _botClient.SendMessage(message.Chat.Id, usage);
+            return new MessageData[] { usage.ToMessageData() };
         }
 
-        private Task Back(UserItem user)
+        private MessageData[] Back(UserItem user)
         {
             _userDAO.SwitchUserState(user.Id, UserState.WaitingCommand);
-            return _botClient.SendMessage(user.Id, "Режим изучения слов выключен.\n/help - список доступных команд");
+            return new MessageData[] { "Режим изучения слов выключен.\n/help - список доступных команд".ToMessageData() };
         }
     }
 }

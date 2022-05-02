@@ -3,6 +3,7 @@ using Autofac;
 using DataAccessLayer.Interfaces;
 using DependencyCore;
 using Entities;
+using Helpers;
 using LogicLayer.StateStrategy;
 using System;
 using System.Collections.Generic;
@@ -18,8 +19,8 @@ namespace Handlers
     public class CommonHandlers
 	{
         public static IContainer Container => AutofacContainer.GetContainer();
-        public static IUserDAO UserDAO => Container.Resolve<IUserDAO>();
         public static IAuthenticationCore AuthenticationCore => Container.Resolve<IAuthenticationCore>();
+        public static ITelegramBotClient BotClient => Container.Resolve<ITelegramBotClient>();
         public static Dictionary<UserState, IStateStrategy> StrategyByState
             => Enum.GetValues<UserState>().ToDictionary(state => state, state => Container.ResolveKeyed<IStateStrategy>(state));
 
@@ -29,7 +30,12 @@ namespace Handlers
                 return;
 
             var user = AuthenticationCore.AuthenticateUser(message.Chat);
-            await StrategyByState[user.State].Action(message, user);
+            var messages = StrategyByState[user.State].Action(message, user);
+
+            foreach (var msg in messages)
+            {
+                await BotClient.SendMessage(user.Id, msg);
+            }
         }
 
         // Process Inline Keyboard callback data
