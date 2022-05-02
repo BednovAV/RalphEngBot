@@ -62,7 +62,7 @@ namespace DataAccessLayer.Services
             });
         }
 
-        public bool SelectWord(long userId, string engText)
+        public bool TrySelectWord(long userId, string word)
         {
             return UseContext(db =>
             {
@@ -70,7 +70,7 @@ namespace DataAccessLayer.Services
                     .Include(u => u.UserWords)
                     .Include(u => u.WordTranslations)
                     .FirstOrDefault(u => u.Id == userId)
-                    .UserWords.FirstOrDefault(w => w.Status == WordStatus.NotSelected && w.WordTranslation.Eng == engText);
+                    .UserWords.FirstOrDefault(w => w.Status == WordStatus.NotSelected && w.WordTranslation.ToRequestedWord() == word);
 
                 if (selectedUserWord != null)
                 {

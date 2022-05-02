@@ -1,8 +1,6 @@
-﻿using Entities.Interfaces;
-
-namespace Entities.Common
+﻿namespace Entities.Interfaces
 {
-    public class WordItem : IWord
+    public interface IWord
     {
         public int Id { get; set; }
         public string Eng { get; set; }

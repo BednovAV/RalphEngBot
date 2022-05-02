@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.Interfaces;
 
 namespace Entities.Common
 {
-    public class WordLearnItem
+    public class WordLearnItem : IWord
     {
         public int Id { get; set; }
         public string Eng { get; set; }

@@ -1,14 +1,10 @@
 ﻿using Entities.DbModels;
-using System;
+using Entities.Interfaces;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Entities
 {
-    public class WordTranslation
+    public class WordTranslation : IWord
     {
         public int Id { get; set; }
         public string Eng { get; set; }

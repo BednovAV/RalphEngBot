@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Helpers
 {
-    public static class CollectionHelpers
+    public static class CollectionExtensions
     {
         public static T[][] Smash<T>(this IEnumerable<T> source, int chunkSize)
         {

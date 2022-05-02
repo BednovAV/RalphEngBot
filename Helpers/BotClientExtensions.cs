@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Entities.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Helpers
 {
-    public static class BotClientHelper
+    public static class BotClientExtensions
     {
 
         public static Task<Message> SendMessage(this ITelegramBotClient _client, long userId, string text, IReplyMarkup replyMarkup = null)
@@ -21,6 +22,10 @@ namespace Helpers
                                                 text: GetMarkdownText(text),
                                                 parseMode: ParseMode.MarkdownV2,
                                                 replyMarkup: replyMarkup);
+        }
+        public static Task<Message> SendMessage(this ITelegramBotClient _client, long userId, MessageData message)
+        {
+            return _client.SendMessage(userId, message.Text, message.ReplyMarkup);
         }
 
         private static string GetMarkdownText(string text)

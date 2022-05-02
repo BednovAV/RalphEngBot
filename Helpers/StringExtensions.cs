@@ -2,7 +2,7 @@
 
 namespace Helpers
 {
-    public static class StringHelpers
+    public static class StringExtensions
     {
         public static string Repeat(this string str, int count)
         {

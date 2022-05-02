@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Helpers
 {
     public static class MarkupGenerator
     {
-        private const int WORDS_PER_LINE = 3;
+        private const int WORDS_PER_LINE = 2;
 
         public static IReplyMarkup GenerateWordsKeyboard(this IEnumerable<string> replyKeyboardData)
         {

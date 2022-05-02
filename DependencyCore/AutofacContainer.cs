@@ -4,7 +4,9 @@ using DataAccessLayer.Interfaces;
 using DataAccessLayer.Services;
 using Entities;
 using LogicLayer.Interfaces;
+using LogicLayer.Interfaces.Words;
 using LogicLayer.Services;
+using LogicLayer.Services.Words;
 using LogicLayer.StateStrategy;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -57,6 +59,7 @@ namespace DependencyCore
             builder.RegisterType<LearningStrategy>().Keyed<IStateStrategy>(LearningStrategy.State);
 
             builder.RegisterType<WordsLogic>().As<IWordsLogic>();
+            builder.RegisterType<WordsMessageGenerator>().As<IWordsMessageGenerator>();
         }
 
         private static void InitDALRegistrations(ContainerBuilder builder)
