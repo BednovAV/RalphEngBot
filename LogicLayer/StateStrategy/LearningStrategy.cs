@@ -1,54 +1,37 @@
 ﻿using DataAccessLayer.Interfaces;
 using Entities;
-using Entities.Common;
-using Helpers;
+using Entities.Navigation;
 using LogicLayer.Interfaces;
-using System;
+using LogicLayer.StateStrategy.Common;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot;
-using Telegram.Bot.Types;
 
 namespace LogicLayer.StateStrategy
 {
-    public class LearningStrategy : IStateStrategy
+    public class LearningStrategy : BaseStateStrategy
     {
-        private readonly IUserDAO _userDAO;
+        public static UserState State => UserState.LearnWordsMode;
+
         private readonly IWordsLogic _wordsLogic;
 
-        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic)
+        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic) : base(userDAO)
         {
-            _userDAO = userDAO;
             _wordsLogic = wordsLogic;
         }
 
-        public static UserState State => UserState.LearnWordsMode;
-
-        public IEnumerable<MessageData> Action(Message message, UserItem user)
+        protected override IEnumerable<StateCommand> InitStateCommands()
         {
-            return message.Text.Split(' ').First() switch
+            return new StateCommand[]
             {
-                "/back" => Back(user),
-                "/startlearn" => _wordsLogic.LearnWords(user),
-                _ => Usage(message)
+                StartLearnCommand,
+                BackToMainCommand
             };
         }
 
-        public MessageData[] Usage(Message message)
+        private StateCommand StartLearnCommand => new StateCommand
         {
-            string usage = "Доступные команды:\n" +
-                           "/startlearn - начать изучение слов\n" +
-                           "/back - выйти";
-
-            return new MessageData[] { usage.ToMessageData() };
-        }
-
-        private MessageData[] Back(UserItem user)
-        {
-            _userDAO.SwitchUserState(user.Id, UserState.WaitingCommand);
-            return new MessageData[] { "Режим изучения слов выключен.\n/help - список доступных команд".ToMessageData() };
-        }
+            Key = "/startlearn",
+            Description = "начать изучение слов",
+            Execute = (message, user) => _wordsLogic.LearnWords(user)
+        };
     }
 }

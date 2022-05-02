@@ -1,41 +1,34 @@
 ﻿using DataAccessLayer.Interfaces;
 using Entities;
 using Entities.Common;
+using Entities.Navigation;
 using LogicLayer.Interfaces;
-using System;
+using LogicLayer.StateStrategy.Common;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
 namespace LogicLayer.StateStrategy
 {
-    public class WaitingNewWordStrategy : IStateStrategy
+    public class WaitingNewWordStrategy : BaseStateStrategy
     {
-        private IWordsLogic _wordsLogic;
-        private IUserDAO _userDAO;
-
-        public WaitingNewWordStrategy(IWordsLogic wordsLogic, IUserDAO userDAO)
-        {
-            _wordsLogic = wordsLogic;
-            _userDAO = userDAO;
-        }
-
         public static UserState State => UserState.WaitingNewWord;
 
-        public IEnumerable<MessageData> Action(Message message, UserItem user)
+        private readonly IWordsLogic _wordsLogic;
+
+        public WaitingNewWordStrategy(IUserDAO userDAO, IWordsLogic wordsLogic) : base(userDAO)
         {
-            return message.Text.Split(' ').First() switch
+            _wordsLogic = wordsLogic;
+        }
+
+        protected override IEnumerable<StateCommand> InitStateCommands()
+        {
+            return new[]
             {
-                "/stop" => StopWaiting(user),
-                _ => _wordsLogic.SelectWord(message, user)
+                BackToMainCommand,
             };
         }
 
-        private IEnumerable<MessageData> StopWaiting(UserItem user)
-        {
-            _userDAO.SwitchUserState(user.Id, UserState.WaitingCommand);
-            return Enumerable.Empty<MessageData>();
-        }
+        protected override IEnumerable<MessageData> NoCommandAction(Message message, UserItem user)
+            => _wordsLogic.SelectWord(message, user);
     }
 }
