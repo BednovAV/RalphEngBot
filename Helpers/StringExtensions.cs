@@ -19,9 +19,9 @@ namespace Helpers
             return builder.ToString();
         }
 
-        public static MessageData ToMessageData(this string str, IReplyMarkup replyMarkup = null)
+        public static MessageData ToMessageData(this string str, IReplyMarkup replyMarkup = null, bool removeKeyboard = false)
         {
-            return new MessageData { Text = str, ReplyMarkup = replyMarkup };
+            return new MessageData { Text = str, ReplyMarkup = replyMarkup, RemoveKeyboard = removeKeyboard };
         }
 
         public static ActionResult ToActionResult(this string str, UserState? switchToUserState = null)

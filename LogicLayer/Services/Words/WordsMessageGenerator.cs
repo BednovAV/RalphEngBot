@@ -37,9 +37,9 @@ namespace LogicLayer.Services.Words
         public MessageData GetRequsetNewWordMsg(IEnumerable<string> notSelectedWords)
             => new MessageData { Text = "Выберите слово для изучения", ReplyMarkup = notSelectedWords.GenerateWordsKeyboard() };
 
-        public MessageData GetAskWordMsg(WordLearnItem wordForAsking, Language translateFrom, Language translateTo)
+        public MessageData GetAskWordMsg(WordLearnItem wordForAsking, Language translateFrom, Language translateTo, bool removeKeyboard)
             => $"Переведите слово на {translateTo.GetDescription()}: *{wordForAsking.GetValue(translateFrom)}*\n{CreateWordProgressBar(wordForAsking)}"
-                    .ToMessageData();
+                    .ToMessageData(removeKeyboard: removeKeyboard);
 
         public MessageData GetSecondWrongAnswerMsg(WordLearnItem askedWord) 
             => $"Вторая ошибка подряд!\nПравильный ответ: *{askedWord.Rus}*\nСчет слова *{askedWord.Eng}* сброшен(".ToMessageData();

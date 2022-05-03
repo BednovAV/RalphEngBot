@@ -153,19 +153,39 @@ namespace LogicLayer.Services
         private IEnumerable<MessageData> GetAskWordMessages(WordLearnItem wordForAsking)
         {
             var result = new List<MessageData>();
-            if (wordForAsking.Recognitions < LearnWordsConfig.FirstLevelPoints + LearnWordsConfig.SecondLevelPoints)
+            switch (DefineLevel(wordForAsking.Recognitions))
             {
-                result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus));
-                if (wordForAsking.Recognitions < LearnWordsConfig.FirstLevelPoints)
-                {
+                case 1:
+                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus, removeKeyboard: false));
                     result.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(wordForAsking, Language.Rus)));
-                }
+                    break;
+                case 2:
+                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus, removeKeyboard: true));
+                    break;
+                case 3:
+                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Rus, Language.Eng, removeKeyboard: true));
+                    break;
+                default:
+                    throw new NotImplementedException($"Level not defined");
+            }
+
+            return result;
+        }
+
+        private int DefineLevel(int points)
+        {
+            if (points < LearnWordsConfig.FirstLevelPoints)
+            {
+                return 1;
+            }
+            else if (points < LearnWordsConfig.FirstLevelPoints + LearnWordsConfig.SecondLevelPoints)
+            {
+                return 2;
             }
             else
             {
-                result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Rus, Language.Eng));
+                return 3;
             }
-            return result;
         }
 
         private string[] CreateAnswerOptions(WordLearnItem wordForAsking, Language lang)

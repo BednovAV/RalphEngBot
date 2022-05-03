@@ -6,5 +6,6 @@ namespace Entities.Common
     {
         public string Text { get; set; }
         public IReplyMarkup ReplyMarkup { get; set; }
+        public bool RemoveKeyboard { get; set; }
     }
 }
