@@ -1,14 +1,12 @@
-﻿using Entities;
-using Entities.Common;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Entities.Common;
+using Entities.Navigation;
 using Telegram.Bot.Types;
 
 namespace LogicLayer.StateStrategy
 {
     public interface IStateStrategy
     {
-        public IEnumerable<MessageData> Action(Message message, UserItem user);
-
+        public ActionResult Action(Message message, UserItem user);
+        public string StateInfo { get; }
     }
 }

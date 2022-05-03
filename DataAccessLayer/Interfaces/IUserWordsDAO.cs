@@ -18,5 +18,6 @@ namespace DataAccessLayer.Interfaces
         void SetWordIsAsked(long userId, int wordId);
         WordLearnItem GetAskedUserWord(long userId);
         void UpdateUserWord(long userId, WordLearnItem updatedUserWord);
+        void ResetWordStatuses(long userId);
     }
 }

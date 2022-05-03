@@ -1,5 +1,9 @@
-﻿using Entities.Common;
+﻿using Entities;
+using Entities.Common;
+using Entities.Navigation;
+using System.Collections.Generic;
 using System.Text;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Helpers
 {
@@ -15,9 +19,18 @@ namespace Helpers
             return builder.ToString();
         }
 
-        public static MessageData ToMessageData(this string str, bool removeKeyboard = true)
+        public static MessageData ToMessageData(this string str, IReplyMarkup replyMarkup = null)
         {
-            return new MessageData { Text = str, RemoveKeyboard = removeKeyboard };
+            return new MessageData { Text = str, ReplyMarkup = replyMarkup };
+        }
+
+        public static ActionResult ToActionResult(this string str, UserState? switchToUserState = null)
+        {
+            return new ActionResult
+            {
+                SwitchToUserState = switchToUserState,
+                MessagesToSend = new List<MessageData> { new MessageData { Text = str } }
+            };
         }
     }
 }

@@ -19,6 +19,9 @@ namespace LogicLayer.StateStrategy.Common
             _userDAO = userDAO;
         }
 
+        public abstract string StateInfo { get; }
+
+
         private List<StateCommand> StateCommands
         {
             get
@@ -36,7 +39,7 @@ namespace LogicLayer.StateStrategy.Common
             HelpCommand
         };
 
-        public IEnumerable<MessageData> Action(Message message, UserItem user)
+        public ActionResult Action(Message message, UserItem user)
         {
             var messageCommand = message.Text.Split(' ').First();
             var command = StateCommands.FirstOrDefault(c => c.Key == messageCommand);
@@ -47,39 +50,38 @@ namespace LogicLayer.StateStrategy.Common
             return NoCommandAction(message, user);
         }
 
-        protected virtual IEnumerable<MessageData> NoCommandAction(Message message, UserItem user)
+        protected virtual ActionResult NoCommandAction(Message message, UserItem user)
         {
-            return new MessageData[] { "/help - список доступных команд".ToMessageData() };
+            return GetCommandsDescriptions().ToActionResult();
         }
 
         private StateCommand HelpCommand => new StateCommand
         {
             Key = "/help",
             Description = null,
-            Execute = (message, user) =>
-            {
-                var builder = new StringBuilder("Доступные команды:\n");
-                foreach (var command in StateCommands)
-                {
-                    if (command.Description != null)
-                    {
-                        builder.AppendLine($"{command.Key} - {command.Description}");
-                    }
-                }
-
-                return new MessageData[] { builder.ToString().ToMessageData() };
-            }
+            Execute = (message, user) => GetCommandsDescriptions().ToActionResult()
         };
 
         protected StateCommand BackToMainCommand => new StateCommand
         {
             Key = "/back",
             Description = "Выйти",
-            Execute = (message, user) =>
-            {
-                _userDAO.SwitchUserState(user.Id, UserState.WaitingCommand);
-                return new MessageData[] { "Вы вернулись в главное меню.\n/help - список доступных команд".ToMessageData() };
-            }
+            Execute = (message, user) => UserState.WaitingCommand.ToActionResult()
         };
+
+
+        protected string GetCommandsDescriptions()
+        {
+            var builder = new StringBuilder("Доступные команды:\n");
+            foreach (var command in StateCommands)
+            {
+                if (command.Description != null)
+                {
+                    builder.AppendLine($"{command.Key} - {command.Description}");
+                }
+            }
+
+            return builder.ToString();
+        }
     }
 }

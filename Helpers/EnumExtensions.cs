@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Entities;
+using Entities.Navigation;
+using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Helpers
 {
     public static class EnumExtensions
     {
+        public static ActionResult ToActionResult(this UserState switchToState)
+        {
+            return new ActionResult { SwitchToUserState = switchToState };
+        }
+
         public static string GetDescription<T>(this T enumerationValue)
         where T : struct
         {

@@ -1,6 +1,5 @@
 ﻿using DataAccessLayer.Interfaces;
 using Entities;
-using Entities.Common;
 using Entities.ConfigSections;
 using Entities.Navigation;
 using Helpers;
@@ -8,7 +7,6 @@ using LogicLayer.StateStrategy.Common;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
-using Telegram.Bot.Types;
 
 namespace LogicLayer.StateStrategy
 {
@@ -28,6 +26,8 @@ namespace LogicLayer.StateStrategy
             _configuration = configuration;
         }
 
+        public override string StateInfo => "*Главное меню*\n" + GetCommandsDescriptions();
+
         protected override IEnumerable<StateCommand> InitStateCommands()
         {
             return new StateCommand[]
@@ -42,22 +42,14 @@ namespace LogicLayer.StateStrategy
         {
             Key = "/rename",
             Description = "Изменить имя",
-            Execute = (message, user) =>
-            {
-                _userDAO.SwitchUserState(user.Id, UserState.WaitingNewName);
-                return new MessageData[] { "Как я могу к вам обращаться?".ToMessageData() };
-            }
+            Execute = (message, user) => "Как я могу к вам обращаться?".ToActionResult(UserState.WaitingNewName)
         };
 
         private StateCommand LearnWordsCommand => new StateCommand
         {
             Key = "/learnwords",
             Description = "Режим изучения слов",
-            Execute = (message, user) =>
-            {
-                _userDAO.SwitchUserState(user.Id, UserState.LearnWordsMode);
-                return new MessageData[] { "Режим изучения слов включен.\n/help - список доступных команд".ToMessageData() };
-            }
+            Execute = (message, user) => UserState.LearnWordsMode.ToActionResult()
         };
 
         private StateCommand ResetDbCommand => new StateCommand
@@ -70,11 +62,11 @@ namespace LogicLayer.StateStrategy
                 if (enteredPass == AdministrationData.Password)
                 {
                     _administrationDAO.ResetDB();
-                    return new MessageData[] { "Database reset successfully".ToMessageData() };
+                    return  "Database reset successfully".ToActionResult();
                 }
                 else
                 {
-                    return new MessageData[] { "Invalid password".ToMessageData() };
+                    return "Invalid password".ToActionResult();
                 }
             }
         };

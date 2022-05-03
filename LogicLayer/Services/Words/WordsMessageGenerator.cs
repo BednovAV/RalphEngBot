@@ -43,7 +43,7 @@ namespace LogicLayer.Services.Words
 
         public MessageData GetSecondWrongAnswerMsg(WordLearnItem askedWord) 
             => $"Вторая ошибка подряд!\nПравильный ответ: *{askedWord.Rus}*\nСчет слова *{askedWord.Eng}* сброшен(".ToMessageData();
-        public MessageData GetFirstWrongAnswerMsg() => "Ответ неправильный, попробуй еще раз".ToMessageData(removeKeyboard: false);
+        public MessageData GetFirstWrongAnswerMsg() => "Ответ неправильный, попробуй еще раз".ToMessageData();
         public MessageData GetAskWordAnswerOptions(string[] answerOptions) 
             => new MessageData { Text = "Выберите подходящее слово:", ReplyMarkup = answerOptions.GenerateWordsKeyboard() };
 

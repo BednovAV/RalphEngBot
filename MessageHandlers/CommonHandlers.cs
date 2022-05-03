@@ -21,6 +21,7 @@ namespace Handlers
         public static IContainer Container => AutofacContainer.GetContainer();
         public static IAuthenticationCore AuthenticationCore => Container.Resolve<IAuthenticationCore>();
         public static ITelegramBotClient BotClient => Container.Resolve<ITelegramBotClient>();
+        public static IUserDAO UserDAO => Container.Resolve<IUserDAO>();
         public static Dictionary<UserState, IStateStrategy> StrategyByState
             => Enum.GetValues<UserState>().ToDictionary(state => state, state => Container.ResolveKeyed<IStateStrategy>(state));
 
@@ -30,11 +31,19 @@ namespace Handlers
                 return;
 
             var user = AuthenticationCore.AuthenticateUser(message.Chat);
-            var messages = StrategyByState[user.State].Action(message, user);
 
-            foreach (var msg in messages)
+            var actionResult = StrategyByState[user.State].Action(message, user);
+            await BotClient.SendMessage(user.Id, actionResult.MessagesToSend);
+
+            var newState = actionResult.SwitchToUserState;
+            if (newState.HasValue)
             {
-                await BotClient.SendMessage(user.Id, msg);
+                UserDAO.SwitchUserState(user.Id, newState.Value);
+                var newStateInfo = StrategyByState[newState.Value].StateInfo;
+                if (newStateInfo != null)
+                {
+                    await BotClient.SendMessage(user.Id, newStateInfo.ToMessageData());
+                }
             }
         }
 

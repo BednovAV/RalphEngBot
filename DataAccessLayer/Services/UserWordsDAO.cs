@@ -132,5 +132,17 @@ namespace DataAccessLayer.Services
                 userWord.Status = updatedUserWord.Status;
             });
         }
+
+        public void ResetWordStatuses(long userId)
+        {
+            UseContext(db =>
+            {
+                db.Users
+                    .Include(u => u.UserWords)
+                    .First(u => u.Id == userId)
+                    .UserWords.Where(w => w.Status.HasFlag(WordStatus.Asked) || w.Status.HasFlag(WordStatus.WrongAnswer))
+                    .ForEach(w => w.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer));
+            });
+        }
     }
 }

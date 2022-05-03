@@ -3,6 +3,7 @@ using DataAccessLayer.Services;
 using Entities;
 using Entities.Common;
 using Entities.ConfigSections;
+using Entities.Navigation;
 using Helpers;
 using LogicLayer.Interfaces;
 using LogicLayer.Interfaces.Words;
@@ -42,26 +43,30 @@ namespace LogicLayer.Services
             _messageGenerator = messageGenerator;
         }
 
-        public IEnumerable<MessageData> LearnWords(UserItem user)
+        public ActionResult LearnWords(UserItem user)
         {
-            var result = new List<MessageData>();
+            var result = new ActionResult();
 
             var notLearnedWords = _userWordsDAO.GetNotLearnedUserWords(user.Id);
             var selectedWords = notLearnedWords.Where(w => w.Status.HasFlag(WordStatus.Selected)).ToList();
             if (selectedWords.Count < LearnWordsConfig.WordsForLearnCount)
             {
-                result.Add(_messageGenerator.GetNotEnoughWordsMsg(LearnWordsConfig.WordsForLearnCount - selectedWords.Count));
-                result.AddRange(RequestNewWord(user, notLearnedWords));
+                result.MessagesToSend.Add(_messageGenerator.GetNotEnoughWordsMsg(LearnWordsConfig.WordsForLearnCount - selectedWords.Count));
+                return result.Append(RequestNewWord(user, notLearnedWords));
             }
             else
             {
-                result.AddRange(AskWord(user, selectedWords));
+                return result.Append(AskWord(user, selectedWords));
             }
-
-            return result;
         }
 
-        public IEnumerable<MessageData> SelectWord(Message message, UserItem user)
+        public ActionResult StopLearn(UserItem user)
+        {
+            _userWordsDAO.ResetWordStatuses(user.Id);
+            return UserState.LearnWordsMode.ToActionResult();
+        }
+
+        public ActionResult SelectWord(Message message, UserItem user)
         {
             List<MessageData> result = new List<MessageData>();
             if (_userWordsDAO.TrySelectWord(user.Id, message.Text))
@@ -73,35 +78,33 @@ namespace LogicLayer.Services
                 result.Add(_messageGenerator.GetWordNotFoundMsg());
             }
 
-            result.AddRange(LearnWords(user));
-            return result;
+            return result.ToActionResult().Append(LearnWords(user));
         }
 
-        public IEnumerable<MessageData> ProcessWordResponse(Message message, UserItem user)
+        public ActionResult ProcessWordResponse(Message message, UserItem user)
         {
-            List<MessageData> result = new List<MessageData>();
+            List<MessageData> resultMsgs = new List<MessageData>();
             var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
             if (IsCorrectAnswer(message, askedWord))
             {
-                result.Add(ProcessRightUserAnswer(askedWord));
+                resultMsgs.Add(ProcessRightUserAnswer(askedWord));
             }
             else if (askedWord.Status.HasFlag(WordStatus.WrongAnswer))
             {
                 askedWord.Recognitions = 0;
                 askedWord.Status ^= WordStatus.Asked | WordStatus.WrongAnswer;
-                result.Add(_messageGenerator.GetSecondWrongAnswerMsg(askedWord));
+                resultMsgs.Add(_messageGenerator.GetSecondWrongAnswerMsg(askedWord));
             }
             else
             {
                 askedWord.Status |= WordStatus.WrongAnswer;
                 _userWordsDAO.UpdateUserWord(user.Id, askedWord);
-                result.Add(_messageGenerator.GetFirstWrongAnswerMsg());
-                return result;
+                resultMsgs.Add(_messageGenerator.GetFirstWrongAnswerMsg());
+                return resultMsgs.ToActionResult();
             }
 
             _userWordsDAO.UpdateUserWord(user.Id, askedWord);
-            result.AddRange(LearnWords(user));
-            return result;
+            return resultMsgs.ToActionResult().Append(LearnWords(user));
         }
 
         private bool IsCorrectAnswer(Message message, WordLearnItem askedWord)
@@ -140,12 +143,11 @@ namespace LogicLayer.Services
             return responceMessage;
         }
 
-        private IEnumerable<MessageData> AskWord(UserItem user, List<WordLearnItem> selectedWords)
+        private ActionResult AskWord(UserItem user, List<WordLearnItem> selectedWords)
         {
             var wordForAsking = selectedWords.RandomItem();
             _userWordsDAO.SetWordIsAsked(user.Id, wordForAsking.Id);
-            _userDAO.SwitchUserState(user.Id, UserState.WaitingWordResponse);
-            return GetAskWordMessages(wordForAsking);
+            return GetAskWordMessages(wordForAsking).ToActionResult(UserState.WaitingWordResponse);
         }
 
         private IEnumerable<MessageData> GetAskWordMessages(WordLearnItem wordForAsking)
@@ -176,11 +178,10 @@ namespace LogicLayer.Services
                 .ToArray();
         }
 
-        private IEnumerable<MessageData> RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)
+        private ActionResult RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)
         {
             var notSelectedWords = GetAndUpdateNotSelectedWords(user, notLearnedWords);
-            _userDAO.SwitchUserState(user.Id, UserState.WaitingNewWord);
-            return new MessageData[] { _messageGenerator.GetRequsetNewWordMsg(notSelectedWords) };
+            return _messageGenerator.GetRequsetNewWordMsg(notSelectedWords).ToActionResult(UserState.WaitingNewWord);
         }
 
         private string[] GetAndUpdateNotSelectedWords(UserItem user, List<WordLearnItem> notLearnedWords)

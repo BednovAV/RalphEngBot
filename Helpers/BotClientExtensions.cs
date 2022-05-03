@@ -20,7 +20,7 @@ namespace Helpers
             bool removeKeyboard,
             IReplyMarkup replyMarkup = null)
         {
-            if (removeKeyboard && replyMarkup is null)
+            if (removeKeyboard)
                 replyMarkup = new ReplyKeyboardRemove();
 
             return _client.SendTextMessageAsync(chatId: userId,
@@ -30,7 +30,16 @@ namespace Helpers
         }
         public static Task<Message> SendMessage(this ITelegramBotClient _client, long userId, MessageData message)
         {
-            return _client.SendMessage(userId, message.Text, message.RemoveKeyboard, message.ReplyMarkup);
+            return _client.SendMessage(userId, message.Text, message.ReplyMarkup == null, message.ReplyMarkup);
+        }
+
+        public static async Task SendMessage(this ITelegramBotClient _client, long userId, IEnumerable<MessageData> messages)
+        {
+            var deleteKeyboard = !messages.Any(x => x.ReplyMarkup != null);
+            foreach (var message in messages)
+            {
+                await _client.SendMessage(userId, message.Text, deleteKeyboard, message.ReplyMarkup);
+            }
         }
 
         private static string GetMarkdownText(string text)

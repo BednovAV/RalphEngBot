@@ -19,6 +19,8 @@ namespace LogicLayer.StateStrategy
         {
         }
 
+        public override string StateInfo => null;
+
         protected override IEnumerable<StateCommand> InitStateCommands()
         {
             return new[]
@@ -27,12 +29,11 @@ namespace LogicLayer.StateStrategy
             };
         }
 
-        protected override IEnumerable<MessageData> NoCommandAction(Message message, UserItem user)
+        protected override ActionResult NoCommandAction(Message message, UserItem user)
         {
-            user.State = UserState.WaitingCommand;
             user.Name = message.Text;
             _userDAO.Update(user);
-            return new MessageData[] { $"Теперь я буду называть вас *{message.Text}*".ToMessageData() };
+            return $"Теперь я буду называть вас *{message.Text}*".ToActionResult(UserState.WaitingCommand);
         }
     }
 }

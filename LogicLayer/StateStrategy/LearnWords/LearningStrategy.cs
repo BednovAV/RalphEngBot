@@ -7,16 +7,17 @@ using System.Collections.Generic;
 
 namespace LogicLayer.StateStrategy
 {
-    public class LearningStrategy : BaseStateStrategy
+    public class LearningStrategy : BaseLearnWordsStateStrategy
     {
         public static UserState State => UserState.LearnWordsMode;
 
-        private readonly IWordsLogic _wordsLogic;
 
-        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic) : base(userDAO)
+        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic) : base(userDAO, wordsLogic)
         {
-            _wordsLogic = wordsLogic;
         }
+
+        public override string StateInfo => "*Режим изучения слов* 👨‍🎓\n" + GetCommandsDescriptions();
+
 
         protected override IEnumerable<StateCommand> InitStateCommands()
         {
