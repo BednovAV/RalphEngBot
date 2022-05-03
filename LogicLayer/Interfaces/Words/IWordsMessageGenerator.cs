@@ -11,9 +11,11 @@ namespace LogicLayer.Interfaces.Words
         MessageData GetWordNotFoundMsg();
         MessageData GetWordSuccesfullySelectedMsg(string word);
         MessageData GetRequsetNewWordMsg(IEnumerable<string> notSelectedWords);
-        MessageData GetAskWordMsg(WordLearnItem wordForAsking, Language translateFrom, Language translateTo, bool removeKeyboard);
+        MessageData GetAskWordMsg(WordLearnItem wordForAsking, Language translateFrom, Language translateTo);
         MessageData GetSecondWrongAnswerMsg(WordLearnItem askedWord);
         MessageData GetFirstWrongAnswerMsg();
         MessageData GetAskWordAnswerOptions(string[] answerOptions);
+        MessageData GetFirstLevelHint(WordLearnItem askedWord);
+        MessageData GetAskWordCallMsg();
     }
 }

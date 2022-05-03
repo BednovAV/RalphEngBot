@@ -4,6 +4,7 @@ using Entities;
 using Entities.Common;
 using Entities.ConfigSections;
 using Entities.Navigation;
+using Entities.Navigation.InlineMarkupData;
 using Helpers;
 using LogicLayer.Interfaces;
 using LogicLayer.Interfaces.Words;
@@ -92,7 +93,7 @@ namespace LogicLayer.Services
             else if (askedWord.Status.HasFlag(WordStatus.WrongAnswer))
             {
                 askedWord.Recognitions = 0;
-                askedWord.Status ^= WordStatus.Asked | WordStatus.WrongAnswer;
+                askedWord.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer | WordStatus.Hinted);
                 resultMsgs.Add(_messageGenerator.GetSecondWrongAnswerMsg(askedWord));
             }
             else
@@ -105,6 +106,33 @@ namespace LogicLayer.Services
 
             _userWordsDAO.UpdateUserWord(user.Id, askedWord);
             return resultMsgs.ToActionResult().Append(LearnWords(user));
+        }
+
+        public ActionResult HintWord(UserItem user)
+        {
+            var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
+            askedWord.Status |= WordStatus.Hinted;
+            _userWordsDAO.UpdateUserWord(user.Id, askedWord);
+
+            return GetWordHints(askedWord).ToActionResult();
+        }
+
+        private IEnumerable<MessageData> GetWordHints(WordLearnItem askedWord)
+        {
+            var messages = new List<MessageData>();
+            switch (DefineLevel(askedWord.Recognitions))
+            {
+                case 1:
+                    messages.Add(_messageGenerator.GetFirstLevelHint(askedWord));
+                    break;
+                case 2:
+                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(askedWord, Language.Rus)));
+                    break;
+                case 3:
+                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(askedWord, Language.Eng)));
+                    break;
+            }
+            return messages;
         }
 
         private bool IsCorrectAnswer(Message message, WordLearnItem askedWord)
@@ -126,13 +154,16 @@ namespace LogicLayer.Services
 
         private MessageData ProcessRightUserAnswer(WordLearnItem askedWord)
         {
-            askedWord.Recognitions++;
+            if (!askedWord.Status.HasFlag(WordStatus.Hinted))
+            {
+                askedWord.Recognitions++;
+            }
             var remainingCount = LearnWordsConfig.RightAnswersForLearned - askedWord.Recognitions;
 
             MessageData responceMessage;
             if (remainingCount != 0)
             {
-                askedWord.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer);
+                askedWord.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer | WordStatus.Hinted);
                 responceMessage = _messageGenerator.GetRightAnswerMsg();
             }
             else
@@ -156,14 +187,16 @@ namespace LogicLayer.Services
             switch (DefineLevel(wordForAsking.Recognitions))
             {
                 case 1:
-                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus, removeKeyboard: false));
+                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus));
                     result.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(wordForAsking, Language.Rus)));
                     break;
                 case 2:
-                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus, removeKeyboard: true));
+                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus));
+                    result.Add(_messageGenerator.GetAskWordCallMsg());
                     break;
                 case 3:
-                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Rus, Language.Eng, removeKeyboard: true));
+                    result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Rus, Language.Eng));
+                    result.Add(_messageGenerator.GetAskWordCallMsg());
                     break;
                 default:
                     throw new NotImplementedException($"Level not defined");

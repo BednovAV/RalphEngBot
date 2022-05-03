@@ -3,7 +3,10 @@ using Autofac;
 using DataAccessLayer.Interfaces;
 using DependencyCore;
 using Entities;
+using Entities.Common;
+using Entities.Navigation;
 using Helpers;
+using LogicLayer.CallbackQuerry;
 using LogicLayer.StateStrategy;
 using System;
 using System.Collections.Generic;
@@ -22,8 +25,10 @@ namespace Handlers
         public static IAuthenticationCore AuthenticationCore => Container.Resolve<IAuthenticationCore>();
         public static ITelegramBotClient BotClient => Container.Resolve<ITelegramBotClient>();
         public static IUserDAO UserDAO => Container.Resolve<IUserDAO>();
+        public static ICallbackQuerryReciever CallbackQuerryReciever => Container.Resolve<ICallbackQuerryReciever>();
         public static Dictionary<UserState, IStateStrategy> StrategyByState
             => Enum.GetValues<UserState>().ToDictionary(state => state, state => Container.ResolveKeyed<IStateStrategy>(state));
+        
 
         public static async Task BotOnMessageReceived(Message message)
         {
@@ -33,6 +38,23 @@ namespace Handlers
             var user = AuthenticationCore.AuthenticateUser(message.Chat);
 
             var actionResult = StrategyByState[user.State].Action(message, user);
+            await ProcessActionResult(user, actionResult);
+        }
+
+        // Process Inline Keyboard callback data
+        public static async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            var user = AuthenticationCore.AuthenticateUser(callbackQuery.Message.Chat);
+            var actionResult = CallbackQuerryReciever.Action(callbackQuery, user);
+
+            await ProcessActionResult(user, actionResult);
+            await botClient.AnswerCallbackQueryAsync(
+                callbackQueryId: callbackQuery.Id,
+                text: $"Выполнено");
+        }
+
+        private static async Task ProcessActionResult(UserItem user, ActionResult actionResult)
+        {
             await BotClient.SendMessage(user.Id, actionResult.MessagesToSend);
 
             var newState = actionResult.SwitchToUserState;
@@ -42,21 +64,9 @@ namespace Handlers
                 var newStateInfo = StrategyByState[newState.Value].StateInfo;
                 if (newStateInfo != null)
                 {
-                    await BotClient.SendMessage(user.Id, newStateInfo.ToMessageData());
+                    await BotClient.SendMessage(user.Id, newStateInfo.ToMessageData(removeKeyboard: true));
                 }
             }
-        }
-
-        // Process Inline Keyboard callback data
-        public static async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-        {
-            await botClient.AnswerCallbackQueryAsync(
-                callbackQueryId: callbackQuery.Id,
-                text: $"Received {callbackQuery.Data}");
-
-            await botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id,
-                text: $"Received {callbackQuery.Data}");
         }
 
         public static async Task BotOnInlineQueryReceived(ITelegramBotClient botClient, InlineQuery inlineQuery)

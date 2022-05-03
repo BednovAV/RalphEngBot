@@ -10,5 +10,6 @@ namespace Entities.Common
         Asked = 4,
         WrongAnswer = 8,
         Learned = 16,
+        Hinted = 32,
     }
 }

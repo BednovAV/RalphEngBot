@@ -1,5 +1,6 @@
 ﻿using Entities.Common;
 using Entities.Navigation;
+using Entities.Navigation.InlineMarkupData;
 using Telegram.Bot.Types;
 
 namespace LogicLayer.Interfaces
@@ -10,5 +11,6 @@ namespace LogicLayer.Interfaces
         ActionResult SelectWord(Message message, UserItem user);
         ActionResult ProcessWordResponse(Message message, UserItem user);
         ActionResult StopLearn(UserItem user);
+        ActionResult HintWord(UserItem user);
     }
 }
