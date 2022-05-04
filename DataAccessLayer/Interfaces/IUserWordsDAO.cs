@@ -1,4 +1,6 @@
 ﻿using Entities.Common;
+using Entities.Navigation;
+using Entities.Navigation.WordStatistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +21,7 @@ namespace DataAccessLayer.Interfaces
         WordLearnItem GetAskedUserWord(long userId);
         void UpdateUserWord(long userId, WordLearnItem updatedUserWord);
         void ResetWordStatuses(long userId);
+        Page<WordStatisticsItem> GetUserWordsStatistics(long userId, int pageNumber, int pageSize);
+        Page<WordStatisticsItem> GetAllWordsStatistics(long userId, int pageNumber, int pageSize);
     }
 }

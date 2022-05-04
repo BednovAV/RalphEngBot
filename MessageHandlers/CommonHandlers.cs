@@ -54,6 +54,8 @@ namespace Handlers
 
         private static async Task ProcessActionResult(UserItem user, ActionResult actionResult)
         {
+            await BotClient.DeleteMessages(user.Id, actionResult.MessageIdsToDelete);
+            await BotClient.EditMessages(user.Id, actionResult.MessagesToEdit);
             await BotClient.SendMessage(user.Id, actionResult.MessagesToSend);
 
             var newState = actionResult.SwitchToUserState;

@@ -39,9 +39,21 @@ namespace DependencyCore
 
             InitDALRegistrations(builder);
             InitLogicRegistrations(builder);
+            InitRecieversRegistrations(builder);
             InitCoreRegistrations(builder);
 
             return builder.Build();
+        }
+
+        private static void InitRecieversRegistrations(ContainerBuilder builder)
+        {
+            builder.RegisterType<WaitingCommandStrategy>().Keyed<IStateStrategy>(WaitingCommandStrategy.State);
+            builder.RegisterType<WaitingNewNameStrategy>().Keyed<IStateStrategy>(WaitingNewNameStrategy.State);
+            builder.RegisterType<WaitingNewWordStrategy>().Keyed<IStateStrategy>(WaitingNewWordStrategy.State);
+            builder.RegisterType<WaitingWordAnswerStrategy>().Keyed<IStateStrategy>(WaitingWordAnswerStrategy.State);
+            builder.RegisterType<LearningStrategy>().Keyed<IStateStrategy>(LearningStrategy.State);
+
+            builder.RegisterType<CallbackQuerryReciever>().As<ICallbackQuerryReciever>();
         }
 
         private static void InitCoreRegistrations(ContainerBuilder builder)
@@ -51,16 +63,11 @@ namespace DependencyCore
         
         private static void InitLogicRegistrations(ContainerBuilder builder)
         {
-            builder.RegisterType<WaitingCommandStrategy>().Keyed<IStateStrategy>(WaitingCommandStrategy.State);
-            builder.RegisterType<WaitingNewNameStrategy>().Keyed<IStateStrategy>(WaitingNewNameStrategy.State);
-            builder.RegisterType<WaitingNewWordStrategy>().Keyed<IStateStrategy>(WaitingNewWordStrategy.State);
-            builder.RegisterType<WaitingWordAnswerStrategy>().Keyed<IStateStrategy>(WaitingWordAnswerStrategy.State);
-            builder.RegisterType<LearningStrategy>().Keyed<IStateStrategy>(LearningStrategy.State);
-
             builder.RegisterType<WordsLogic>().As<IWordsLogic>();
-            builder.RegisterType<WordsMessageGenerator>().As<IWordsMessageGenerator>();
+            builder.RegisterType<LearnWordsMessageGenerator>().As<ILearnWordsMessageGenerator>();
 
-            builder.RegisterType<CallbackQuerryReciever>().As<ICallbackQuerryReciever>();
+            builder.RegisterType<WordsAccessor>().As<IWordsAccessor>();
+            builder.RegisterType<WordsAccessorMessageGenerator>().As<IWordsAccessorMessageGenerator>();
         }
 
         private static void InitDALRegistrations(ContainerBuilder builder)

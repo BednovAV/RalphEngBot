@@ -16,6 +16,7 @@ namespace Entities
                 .ReverseMap();
             CreateMap<WordTranslation, WordItem>().ReverseMap();
             CreateMap<WordItem, WordLearnItem>().ReverseMap();
+            CreateMap<UserWord, WordLearnInfo>();
         }
     }
 }

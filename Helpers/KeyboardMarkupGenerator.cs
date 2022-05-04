@@ -4,7 +4,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Helpers
 {
-    public static class MarkupGenerator
+    public static class KeyboardMarkupGenerator
     {
         private const int WORDS_PER_LINE = 2;
 

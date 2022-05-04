@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace LogicLayer.Interfaces.Words
 {
-    public interface IWordsMessageGenerator
+    public interface ILearnWordsMessageGenerator
     {
         MessageData GetNotEnoughWordsMsg(int notEnoughCount);
         MessageData GetRightAnswerMsg();

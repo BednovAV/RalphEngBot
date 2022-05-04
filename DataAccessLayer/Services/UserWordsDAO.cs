@@ -3,6 +3,8 @@ using DataAccessLayer.Interfaces;
 using Entities.Common;
 using Entities.ConfigSections;
 using Entities.DbModels;
+using Entities.Navigation;
+using Entities.Navigation.WordStatistics;
 using Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -143,6 +145,39 @@ namespace DataAccessLayer.Services
                     .UserWords.Where(w => w.Status.HasFlag(WordStatus.Asked) || w.Status.HasFlag(WordStatus.WrongAnswer))
                     .ForEach(w => w.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer));
             });
+        }
+
+        public Page<WordStatisticsItem> GetUserWordsStatistics(long userId, int pageNumber, int pageSize)
+        {
+            return UseContext(db =>
+               db
+               .Users
+               .Include(u => u.UserWords)
+               .Include(u => u.WordTranslations)
+               .First(u => u.Id == userId)
+               .UserWords
+               .Where(w => !w.Status.HasFlag(WordStatus.NotSelected))
+               .OrderBy(w => w.WordTranslation.Eng)
+               .Select(w => new WordStatisticsItem
+               {
+                   Word = w.WordTranslation.Map<WordItem>(),
+                   LearnInfo = w.Map<WordLearnInfo>()
+               })
+               .GetPaged(pageNumber, pageSize));
+        }
+
+        public Page<WordStatisticsItem> GetAllWordsStatistics(long userId, int pageNumber, int pageSize)
+        {
+            return UseContext(db =>
+                db
+                .WordTranslations
+                .Include(w => w.UserWords)
+                .OrderBy(w => w.Eng)
+                .Select(w => new WordStatisticsItem
+                {
+                    Word = w.Map<WordItem>(),
+                    LearnInfo = w.UserWords.FirstOrDefault(uw => uw.UserId == userId).Map<WordLearnInfo>()
+                }).GetPaged(pageNumber, pageSize));
         }
     }
 }

@@ -8,6 +8,6 @@ namespace Entities.Navigation
         ExitFromWordsLearning,
         [Description("Подсказка")]
         WordHint,
-
+        SwitchShowUserWordPage,
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Entities.Navigation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -57,6 +58,19 @@ namespace Helpers
             }
 
             return result;
+        }
+
+        public static Page<T> GetPaged<T>(this IEnumerable<T> source, int pageNumber, int pageSize)
+        {
+            var data = source.ToList();
+            return new Page<T>
+            {
+                PageSize = pageSize,
+                Number = pageNumber,
+                TotalCount = data.Count,
+                TotalPages = (data.Count / pageSize) + 1,
+                Data = data.Skip(pageSize * (pageNumber - 1)).Take(pageSize).ToList()
+            };
         }
     }
 }

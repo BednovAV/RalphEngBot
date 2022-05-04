@@ -22,8 +22,10 @@ namespace Helpers
             Mapper = configuration.CreateMapper();
         }
 
-        public static MapTo Map<MapTo>(this object source)
+        public static MapTo Map<MapTo>(this object source) where MapTo : class
         {
+            if (source is null)
+                return null;
             return Mapper.Map<MapTo>(source);
         }
     }

@@ -24,6 +24,18 @@ namespace Helpers
                                                 parseMode: ParseMode.MarkdownV2,
                                                 replyMarkup: replyMarkup);
         }
+        public static Task<Message> EditMessage(this ITelegramBotClient _client,
+            long userId,
+            int messageId,
+            string text,
+            InlineKeyboardMarkup markup = null)
+        {
+            return _client.EditMessageTextAsync(chatId: userId,
+                                                messageId: messageId,           
+                                                text: GetMarkdownText(text),
+                                                parseMode: ParseMode.MarkdownV2,
+                                                replyMarkup: markup);
+        }
         public static Task<Message> SendMessage(this ITelegramBotClient _client, long userId, MessageData message)
         {
             return _client.SendMessage(userId, message.Text, message.RemoveKeyboard ? new ReplyKeyboardRemove() : message.ReplyMarkup);
@@ -34,6 +46,22 @@ namespace Helpers
             foreach (var message in messages)
             {
                 await _client.SendMessage(userId, message);
+            }
+        }
+
+        public static async Task EditMessages(this ITelegramBotClient _client, long userId, IEnumerable<EditMessageData> messages)
+        {
+            foreach (var message in messages)
+            {
+                await _client.EditMessage(userId, message.MessageId, message.Text, message.ReplyMarkup as InlineKeyboardMarkup);
+            }
+        }
+
+        public static async Task DeleteMessages(this ITelegramBotClient _client, long userId, IEnumerable<int> deleteMessageIds)
+        {
+            foreach (var messageId in deleteMessageIds)
+            {
+                await _client.DeleteMessageAsync(userId, messageId);
             }
         }
 

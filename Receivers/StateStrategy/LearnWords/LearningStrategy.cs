@@ -2,18 +2,18 @@
 using Entities;
 using Entities.Navigation;
 using LogicLayer.Interfaces;
+using LogicLayer.Interfaces.Words;
 using System.Collections.Generic;
 
 namespace Receivers
 {
     public class LearningStrategy : BaseLearnWordsStateStrategy
     {
-        public static UserState State => UserState.LearnWordsMode;
-
-
-        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic) : base(userDAO, wordsLogic)
+        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO, wordsLogic, wordsAccessor)
         {
         }
+
+        public static UserState State => UserState.LearnWordsMode;
 
         public override string StateInfo => "*Режим изучения слов* 👨‍🎓\n" + GetCommandsDescriptions();
 
@@ -23,6 +23,7 @@ namespace Receivers
             return new StateCommand[]
             {
                 StartLearnCommand,
+                MyWordsCommand,
                 BackToMainCommand
             };
         }
@@ -32,6 +33,12 @@ namespace Receivers
             Key = "/startlearn",
             Description = "начать изучение слов",
             Execute = (message, user) => _wordsLogic.LearnWords(user)
+        };
+        private StateCommand MyWordsCommand => new StateCommand
+        {
+            Key = "/mywords",
+            Description = "посмотреть список изученных слов",
+            Execute = (message, user) => _wordsAccessor.ShowUserWords(user)
         };
     }
 }

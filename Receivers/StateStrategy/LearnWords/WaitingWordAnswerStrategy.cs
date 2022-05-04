@@ -3,6 +3,7 @@ using Entities;
 using Entities.Common;
 using Entities.Navigation;
 using LogicLayer.Interfaces;
+using LogicLayer.Interfaces.Words;
 using System.Collections.Generic;
 using Telegram.Bot.Types;
 
@@ -10,11 +11,12 @@ namespace Receivers
 {
     public class WaitingWordAnswerStrategy : BaseLearnWordsStateStrategy
     {
-        public static UserState State => UserState.WaitingWordResponse;
-
-        public WaitingWordAnswerStrategy(IUserDAO userDAO, IWordsLogic wordsLogic) : base(userDAO, wordsLogic)
+        public WaitingWordAnswerStrategy(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO, wordsLogic, wordsAccessor)
         {
         }
+
+        public static UserState State => UserState.WaitingWordResponse;
+
 
         public override string StateInfo => null;
 

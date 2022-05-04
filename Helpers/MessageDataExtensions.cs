@@ -15,12 +15,31 @@ namespace Helpers
                 MessagesToSend = new List<MessageData> { messageData }
             };
         }
+        public static ActionResult ToActionResult(this EditMessageData editMessageData, UserState? switchToUserState = null)
+        {
+            return new ActionResult
+            {
+                SwitchToUserState = switchToUserState,
+                MessagesToEdit = new List<EditMessageData> { editMessageData }
+            };
+        }
         public static ActionResult ToActionResult(this IEnumerable<MessageData> messageData, UserState? switchToUserState = null)
         {
             return new ActionResult
             {
                 SwitchToUserState = switchToUserState,
                 MessagesToSend = new List<MessageData>(messageData)
+            };
+        }
+
+        public static EditMessageData ToEditMessageData(this MessageData messageData, int messageId)
+        {
+            return new EditMessageData
+            {
+                MessageId = messageId,
+                Text = messageData.Text,
+                RemoveKeyboard = messageData.RemoveKeyboard,
+                ReplyMarkup = messageData.ReplyMarkup,
             };
         }
     }

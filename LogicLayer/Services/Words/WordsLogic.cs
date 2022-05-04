@@ -27,7 +27,7 @@ namespace LogicLayer.Services
         private readonly IWordTranslationDAO _wordTranslationDAO;
         private readonly IConfiguration _configuration;
         private readonly IUserDAO _userDAO;
-        private readonly IWordsMessageGenerator _messageGenerator;
+        private readonly ILearnWordsMessageGenerator _messageGenerator;
 
         public LearnWordsConfigSection LearnWordsConfig => _configuration.GetSection(LearnWordsConfigSection.SectionName).Get<LearnWordsConfigSection>();
 
@@ -35,7 +35,7 @@ namespace LogicLayer.Services
             IConfiguration configuration,
             IWordTranslationDAO wordTranslationDAO,
             IUserDAO userDAO, 
-            IWordsMessageGenerator messageGenerator)
+            ILearnWordsMessageGenerator messageGenerator)
         {
             _userWordsDAO = userWordsDAO;
             _configuration = configuration;

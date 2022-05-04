@@ -11,7 +11,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace LogicLayer.Services.Words
 {
-    public class WordsMessageGenerator : IWordsMessageGenerator
+    public class LearnWordsMessageGenerator : ILearnWordsMessageGenerator
     {
         private const string EMOJI_GREEN_CIRCLE = "🟢";
         private const string EMOJI_RED_CIRCLE = "🔴";
@@ -23,7 +23,7 @@ namespace LogicLayer.Services.Words
 
         public LearnWordsConfigSection LearnWordsConfig => _configuration.GetSection(LearnWordsConfigSection.SectionName).Get<LearnWordsConfigSection>();
 
-        public WordsMessageGenerator(IConfiguration configuration)
+        public LearnWordsMessageGenerator(IConfiguration configuration)
         {
             _configuration = configuration;
         }
