@@ -3,13 +3,10 @@ using Entities;
 using Entities.Common;
 using Entities.Navigation;
 using Helpers;
-using LogicLayer.StateStrategy.Common;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace LogicLayer.StateStrategy
+namespace Receivers
 {
     public class WaitingNewNameStrategy : BaseStateStrategy
     {

@@ -1,14 +1,8 @@
 ﻿using DataAccessLayer.Interfaces;
 using Entities.Navigation;
 using LogicLayer.Interfaces;
-using LogicLayer.StateStrategy.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace LogicLayer.StateStrategy
+namespace Receivers
 {
     public abstract class BaseLearnWordsStateStrategy : BaseStateStrategy
     {

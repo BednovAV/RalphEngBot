@@ -2,7 +2,7 @@
 using Entities.Navigation;
 using Telegram.Bot.Types;
 
-namespace LogicLayer.StateStrategy
+namespace Receivers
 {
     public interface IStateStrategy
     {

@@ -6,7 +6,7 @@ using LogicLayer.Interfaces;
 using System.Collections.Generic;
 using Telegram.Bot.Types;
 
-namespace LogicLayer.StateStrategy
+namespace Receivers
 {
     public class WaitingWordAnswerStrategy : BaseLearnWordsStateStrategy
     {

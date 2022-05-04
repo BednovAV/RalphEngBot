@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using Telegram.Bot.Types;
 
-namespace LogicLayer.StateStrategy.Common
+namespace Receivers
 {
     public abstract class BaseStateStrategy : IStateStrategy
     {

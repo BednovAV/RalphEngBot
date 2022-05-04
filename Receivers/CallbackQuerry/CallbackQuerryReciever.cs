@@ -1,12 +1,10 @@
-﻿using Entities;
-using Entities.Common;
+﻿using Entities.Common;
 using Entities.Navigation;
-using Helpers;
 using LogicLayer.Interfaces;
 using Newtonsoft.Json;
 using Telegram.Bot.Types;
 
-namespace LogicLayer.CallbackQuerry
+namespace Receivers
 {
     public class CallbackQuerryReciever : ICallbackQuerryReciever
     {

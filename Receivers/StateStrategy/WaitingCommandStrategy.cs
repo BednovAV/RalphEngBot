@@ -3,12 +3,11 @@ using Entities;
 using Entities.ConfigSections;
 using Entities.Navigation;
 using Helpers;
-using LogicLayer.StateStrategy.Common;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LogicLayer.StateStrategy
+namespace Receivers
 {
     public class WaitingCommandStrategy : BaseStateStrategy
     {

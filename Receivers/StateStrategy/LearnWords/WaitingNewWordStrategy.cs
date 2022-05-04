@@ -2,13 +2,11 @@
 using Entities;
 using Entities.Common;
 using Entities.Navigation;
-using Helpers;
 using LogicLayer.Interfaces;
-using LogicLayer.StateStrategy.Common;
 using System.Collections.Generic;
 using Telegram.Bot.Types;
 
-namespace LogicLayer.StateStrategy
+namespace Receivers
 {
     public class WaitingNewWordStrategy : BaseLearnWordsStateStrategy
     {

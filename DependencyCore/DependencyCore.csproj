@@ -15,6 +15,7 @@
     <ProjectReference Include="..\AuthenticationCore\AuthenticationCore.csproj" />
     <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
     <ProjectReference Include="..\LogicLayer\LogicLayer.csproj" />
+    <ProjectReference Include="..\Receivers\Receivers.csproj" />
   </ItemGroup>
 
 </Project>

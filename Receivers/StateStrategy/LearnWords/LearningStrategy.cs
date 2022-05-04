@@ -2,10 +2,9 @@
 using Entities;
 using Entities.Navigation;
 using LogicLayer.Interfaces;
-using LogicLayer.StateStrategy.Common;
 using System.Collections.Generic;
 
-namespace LogicLayer.StateStrategy
+namespace Receivers
 {
     public class LearningStrategy : BaseLearnWordsStateStrategy
     {
