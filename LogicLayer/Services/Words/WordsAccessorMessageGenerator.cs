@@ -32,7 +32,7 @@ namespace LogicLayer.Services.Words
         {
             var builder = new StringBuilder();
 
-            builder.AppendLine($"Выучено слов: {statisticsData.WordsLearned.LearnedCount}/{statisticsData.WordsLearned.TotalCount}");
+            builder.AppendLine($"*Выучено слов: {statisticsData.WordsLearned.LearnedCount}/{statisticsData.WordsLearned.TotalCount}*");
             builder.AppendLine("Список " + (statisticsData.WithAll ? string.Empty : "изученных ") + "слов:");
 
             var index = ((statisticsData.PageData.Number - 1) * statisticsData.PageData.PageSize) + 1;

@@ -44,6 +44,11 @@ namespace LogicLayer.Services
             _messageGenerator = messageGenerator;
         }
 
+        public ActionResult StartLearnWords(UserItem user)
+        {
+            return _messageGenerator.GetStartLearnMsg().ToActionResult().Append(LearnWords(user));
+        }
+
         public ActionResult LearnWords(UserItem user)
         {
             var result = new ActionResult();

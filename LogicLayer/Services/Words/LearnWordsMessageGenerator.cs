@@ -18,6 +18,9 @@ namespace LogicLayer.Services.Words
         private const string EMOJI_WHITE_CIRCLE = "⚪";
         private const string EMOJI_YELLOW_CIRCLE = "🟡";
         private const string EMOJI_PARTY_POPPER = "🎉";
+        private const string EMOJI_NOTE = "📝";
+        private const string EMOJI_ENG_TO_RUS = "🇬🇧-->🇷🇺";
+        private const string EMOJI_RUS_TO_ENG = "🇷🇺-->🇬🇧";
 
         private readonly IConfiguration _configuration;
 
@@ -26,6 +29,16 @@ namespace LogicLayer.Services.Words
         public LearnWordsMessageGenerator(IConfiguration configuration)
         {
             _configuration = configuration;
+        }
+
+        public MessageData GetStartLearnMsg()
+        {
+            var text = "*Вы перешли в режим изучения слов.*\n" +
+                      $"Чтобы слово считалось выученным, вам нужно *{LearnWordsConfig.FirstLevelPoints} раз* выбрать правильный вариант его перевода({EMOJI_NOTE})," +
+                      $" *{LearnWordsConfig.SecondLevelPoints} раза* перевести его с английского на русский({EMOJI_ENG_TO_RUS}) " +
+                      $"и *{LearnWordsConfig.ThirdLevelPoints} раза* перевести с русского на английский({EMOJI_RUS_TO_ENG})\n" +
+                       "*Удачи!*";
+            return text.ToMessageData();
         }
 
         public MessageData GetNotEnoughWordsMsg(int notEnoughCount) => $"Не хватает слов: {notEnoughCount}".ToMessageData();
@@ -92,9 +105,9 @@ namespace LogicLayer.Services.Words
             }
 
             return
-                $"С вариантом ответа:           {EMOJI_GREEN_CIRCLE.Repeat(firstLevelPoints)}{EMOJI_YELLOW_CIRCLE.Repeat(firstLevelRemaining)}\n"
-                + $"С анлийского на русский:  {EMOJI_GREEN_CIRCLE.Repeat(secondLevelPoints)}{EMOJI_YELLOW_CIRCLE.Repeat(secondLevelRemaining)}\n"
-                + $"С русского на английский: {EMOJI_GREEN_CIRCLE.Repeat(thirdLevelPoints)}{EMOJI_YELLOW_CIRCLE.Repeat(thirdLevelRemaining)}";
+                $"{EMOJI_NOTE}: {EMOJI_GREEN_CIRCLE.Repeat(firstLevelPoints)}{EMOJI_YELLOW_CIRCLE.Repeat(firstLevelRemaining)}\n"
+                + $"{EMOJI_ENG_TO_RUS}: {EMOJI_GREEN_CIRCLE.Repeat(secondLevelPoints)}{EMOJI_YELLOW_CIRCLE.Repeat(secondLevelRemaining)}\n"
+                + $"{EMOJI_RUS_TO_ENG}: {EMOJI_GREEN_CIRCLE.Repeat(thirdLevelPoints)}{EMOJI_YELLOW_CIRCLE.Repeat(thirdLevelRemaining)}";
         }
 
         private IReplyMarkup CreateAskWordButtons()

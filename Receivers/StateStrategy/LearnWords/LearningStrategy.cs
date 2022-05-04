@@ -15,7 +15,7 @@ namespace Receivers
 
         public static UserState State => UserState.LearnWordsMode;
 
-        public override string StateInfo => "*Режим изучения слов* 👨‍🎓\n" + GetCommandsDescriptions();
+        public override string StateInfo => "*Изучение слов* 👨‍🎓\n" + GetCommandsDescriptions();
 
 
         protected override IEnumerable<StateCommand> InitStateCommands()
@@ -32,7 +32,7 @@ namespace Receivers
         {
             Key = "/startlearn",
             Description = "начать изучение слов",
-            Execute = (message, user) => _wordsLogic.LearnWords(user)
+            Execute = (message, user) => _wordsLogic.StartLearnWords(user)
         };
         private StateCommand MyWordsCommand => new StateCommand
         {

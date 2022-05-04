@@ -47,7 +47,7 @@ namespace Receivers
         private StateCommand LearnWordsCommand => new StateCommand
         {
             Key = "/learnwords",
-            Description = "Режим изучения слов",
+            Description = "Изучение слов",
             Execute = (message, user) => UserState.LearnWordsMode.ToActionResult()
         };
 

@@ -1,4 +1,5 @@
 ﻿using Entities.Common;
+using Entities.Navigation;
 using System.Collections.Generic;
 
 namespace LogicLayer.Interfaces.Words
@@ -17,5 +18,6 @@ namespace LogicLayer.Interfaces.Words
         MessageData GetAskWordAnswerOptions(string[] answerOptions);
         MessageData GetFirstLevelHint(WordLearnItem askedWord);
         MessageData GetAskWordCallMsg();
+        MessageData GetStartLearnMsg();
     }
 }

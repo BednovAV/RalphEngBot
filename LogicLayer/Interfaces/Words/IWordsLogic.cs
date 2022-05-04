@@ -12,5 +12,6 @@ namespace LogicLayer.Interfaces
         ActionResult ProcessWordResponse(Message message, UserItem user);
         ActionResult StopLearn(UserItem user);
         ActionResult HintWord(UserItem user);
+        ActionResult StartLearnWords(UserItem user);
     }
 }

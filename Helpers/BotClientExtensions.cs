@@ -70,7 +70,7 @@ namespace Helpers
             var textBuilder = new StringBuilder(text);
             for (int i = 0; i < textBuilder.Length; i++)
             {
-                if (textBuilder[i] is '!' or '(' or ')' or '-' or '.')
+                if (textBuilder[i] is '!' or '(' or ')' or '-' or '.' or '<' or '>')
                 {
                     textBuilder.Insert(i, '\\');
                     i++;
