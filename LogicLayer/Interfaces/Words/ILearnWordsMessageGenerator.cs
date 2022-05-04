@@ -7,7 +7,7 @@ namespace LogicLayer.Interfaces.Words
     {
         MessageData GetNotEnoughWordsMsg(int notEnoughCount);
         MessageData GetRightAnswerMsg();
-        MessageData GetWordLearnedMsg(string word);
+        MessageData GetWordLearnedMsg(string word, WordsLearned learnedWords);
         MessageData GetWordNotFoundMsg();
         MessageData GetWordSuccesfullySelectedMsg(string word);
         MessageData GetRequsetNewWordMsg(IEnumerable<string> notSelectedWords);

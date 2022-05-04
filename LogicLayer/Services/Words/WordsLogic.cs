@@ -88,7 +88,7 @@ namespace LogicLayer.Services
             var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
             if (IsCorrectAnswer(message, askedWord))
             {
-                resultMsgs.Add(ProcessRightUserAnswer(askedWord));
+                resultMsgs.Add(ProcessRightUserAnswer(askedWord, user));
             }
             else if (askedWord.Status.HasFlag(WordStatus.WrongAnswer))
             {
@@ -152,7 +152,7 @@ namespace LogicLayer.Services
             }
         }
 
-        private MessageData ProcessRightUserAnswer(WordLearnItem askedWord)
+        private MessageData ProcessRightUserAnswer(WordLearnItem askedWord, UserItem user)
         {
             if (!askedWord.Status.HasFlag(WordStatus.Hinted))
             {
@@ -169,7 +169,8 @@ namespace LogicLayer.Services
             else
             {
                 askedWord.Status = WordStatus.Learned;
-                responceMessage = _messageGenerator.GetWordLearnedMsg(askedWord.Eng);
+                var learnedWords = _userWordsDAO.GetUserWordsLearned(user.Id);
+                responceMessage = _messageGenerator.GetWordLearnedMsg(askedWord.Eng, learnedWords);
             }
             return responceMessage;
         }

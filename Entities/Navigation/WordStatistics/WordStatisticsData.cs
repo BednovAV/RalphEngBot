@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.Common;
 
 namespace Entities.Navigation.WordStatistics
 {
@@ -10,5 +6,6 @@ namespace Entities.Navigation.WordStatistics
     {
         public Page<WordStatisticsItem> PageData { get; set; }
         public bool WithAll { get; set; }
+        public WordsLearned WordsLearned { get; set; }
     }
 }

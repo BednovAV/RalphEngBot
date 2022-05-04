@@ -37,7 +37,11 @@ namespace LogicLayer.Services.Words
 
         private MessageData GetShowUserWordMessages(UserItem user, int pageNumber, bool withAll)
         {
-            var statisticsData = new WordStatisticsData { WithAll = withAll };
+            var statisticsData = new WordStatisticsData
+            {
+                WithAll = withAll,
+                WordsLearned = _userWordsDAO.GetUserWordsLearned(user.Id),
+            };
             statisticsData.PageData = statisticsData.WithAll
                 ? _userWordsDAO.GetAllWordsStatistics(user.Id, pageNumber, WORDS_PAGE_SIZE)
                 : _userWordsDAO.GetUserWordsStatistics(user.Id, pageNumber, WORDS_PAGE_SIZE);

@@ -6,6 +6,7 @@ using Entities.Navigation.WordStatistics;
 using Helpers;
 using LogicLayer.Interfaces.Words;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -31,6 +32,7 @@ namespace LogicLayer.Services.Words
         {
             var builder = new StringBuilder();
 
+            builder.AppendLine($"Выучено слов: {statisticsData.WordsLearned.LearnedCount}/{statisticsData.WordsLearned.TotalCount}");
             builder.AppendLine("Список " + (statisticsData.WithAll ? string.Empty : "изученных ") + "слов:");
 
             var index = ((statisticsData.PageData.Number - 1) * statisticsData.PageData.PageSize) + 1;
@@ -45,8 +47,7 @@ namespace LogicLayer.Services.Words
                 }
                 builder.AppendLine();
             }
-            builder.Append($"Страница {statisticsData.PageData.Number} из {statisticsData.PageData.TotalPages}");
-
+            builder.AppendLine($"Страница {statisticsData.PageData.Number} из {statisticsData.PageData.TotalPages}.");
             return builder.ToString().ToMessageData(GenerateShowUserWordsMarkup(statisticsData));
         }
 
@@ -81,7 +82,7 @@ namespace LogicLayer.Services.Words
             }
             else
             {
-                secondRow.Add(InlineMarkupType.SwitchShowUserWordPage.CreateInlineMarkupItem("показать все слова", new SwitchUserWordPageData
+                secondRow.Add(InlineMarkupType.SwitchShowUserWordPage.CreateInlineMarkupItem("Показать все слова", new SwitchUserWordPageData
                 {
                     ToPage = 1,
                     WithAll = true

@@ -23,5 +23,6 @@ namespace DataAccessLayer.Interfaces
         void ResetWordStatuses(long userId);
         Page<WordStatisticsItem> GetUserWordsStatistics(long userId, int pageNumber, int pageSize);
         Page<WordStatisticsItem> GetAllWordsStatistics(long userId, int pageNumber, int pageSize);
+        WordsLearned GetUserWordsLearned(long userId);
     }
 }

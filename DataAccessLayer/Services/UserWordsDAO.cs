@@ -179,5 +179,19 @@ namespace DataAccessLayer.Services
                     LearnInfo = w.UserWords.FirstOrDefault(uw => uw.UserId == userId).Map<WordLearnInfo>()
                 }).GetPaged(pageNumber, pageSize));
         }
+
+        public WordsLearned GetUserWordsLearned(long userId)
+        {
+            return UseContext(db => new WordsLearned 
+            { 
+                TotalCount = db.WordTranslations.Count(),
+                LearnedCount = db.Users
+                    .Include(w => w.UserWords)
+                    .First(u => u.Id == userId)
+                    .UserWords
+                    .Count(uw => uw.Status.HasFlag(WordStatus.Learned))
+            });
+
+        }
     }
 }
