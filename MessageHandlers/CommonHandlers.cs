@@ -1,12 +1,12 @@
 ﻿using AuthenticationCore;
 using Autofac;
+using Communication;
 using DataAccessLayer.Interfaces;
 using DependencyCore;
 using Entities;
 using Entities.Common;
 using Entities.Navigation;
 using Helpers;
-using Receivers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +25,9 @@ namespace Handlers
         public static ITelegramBotClient BotClient => Container.Resolve<ITelegramBotClient>();
         public static IUserDAO UserDAO => Container.Resolve<IUserDAO>();
         public static ICallbackQuerryReciever CallbackQuerryReciever => Container.Resolve<ICallbackQuerryReciever>();
-        public static Dictionary<UserState, IStateStrategy> StrategyByState
-            => Enum.GetValues<UserState>().ToDictionary(state => state, state => Container.ResolveKeyed<IStateStrategy>(state));
+        public static IChatManager ChatManager => Container.Resolve<IChatManager>();
+        public static Dictionary<UserState, IMessageReceiver> StrategyByState
+            => Enum.GetValues<UserState>().ToDictionary(state => state, state => Container.ResolveKeyed<IMessageReceiver>(state));
         
 
         public static async Task BotOnMessageReceived(Message message)
@@ -54,9 +55,9 @@ namespace Handlers
 
         private static async Task ProcessActionResult(UserItem user, ActionResult actionResult)
         {
-            await BotClient.DeleteMessages(user.Id, actionResult.MessageIdsToDelete);
-            await BotClient.EditMessages(user.Id, actionResult.MessagesToEdit);
-            await BotClient.SendMessage(user.Id, actionResult.MessagesToSend);
+            await ChatManager.DeleteMessages(user.Id, actionResult.MessageIdsToDelete);
+            await ChatManager.EditMessages(user.Id, actionResult.MessagesToEdit);
+            await ChatManager.SendMessages(user.Id, actionResult.MessagesToSend);
 
             var newState = actionResult.SwitchToUserState;
             if (newState.HasValue)
@@ -65,7 +66,7 @@ namespace Handlers
                 var newStateInfo = StrategyByState[newState.Value].StateInfo;
                 if (newStateInfo != null)
                 {
-                    await BotClient.SendMessage(user.Id, newStateInfo.ToMessageData(removeKeyboard: true));
+                    await ChatManager.SendMessage(user.Id, newStateInfo.ToMessageData(removeKeyboard: true));
                 }
             }
         }

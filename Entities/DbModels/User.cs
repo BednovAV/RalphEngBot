@@ -13,6 +13,7 @@ namespace Entities
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long Id { get; set; }
         public string Name { get; set; }
+        public string TelegramUsername { get; set; }
         public UserState State { get; set; }
 
         public List<WordTranslation> WordTranslations { get; set; } = new();

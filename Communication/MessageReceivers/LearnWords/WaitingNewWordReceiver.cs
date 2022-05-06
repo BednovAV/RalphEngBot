@@ -7,16 +7,15 @@ using LogicLayer.Interfaces.Words;
 using System.Collections.Generic;
 using Telegram.Bot.Types;
 
-namespace Receivers
+namespace Communication
 {
-    public class WaitingWordAnswerStrategy : BaseLearnWordsStateStrategy
+    public class WaitingNewWordReceiver : BaseLearnWordsStateReceiver
     {
-        public WaitingWordAnswerStrategy(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO, wordsLogic, wordsAccessor)
+        public WaitingNewWordReceiver(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO, wordsLogic, wordsAccessor)
         {
         }
 
-        public static UserState State => UserState.WaitingWordResponse;
-
+        public static UserState State => UserState.WaitingNewWord;
 
         public override string StateInfo => null;
 
@@ -28,7 +27,7 @@ namespace Receivers
             };
         }
 
-        protected override ActionResult NoCommandAction(Message message, UserItem user) 
-            => _wordsLogic.ProcessWordResponse(message, user);
+        protected override ActionResult NoCommandAction(Message message, UserItem user)
+            => _wordsLogic.SelectWord(message, user);
     }
 }

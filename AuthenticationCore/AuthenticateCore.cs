@@ -24,11 +24,17 @@ namespace AuthenticationCore
                 user = new UserItem
                 {
                     Id = id,
-                    Name = chat.Username
+                    Name = chat.Username,
+                    TelegramUsername = chat.Username
                 };
 
                 _userDAO.Add(user);
                 _userWordsDAO.InitWordsForUser(id);
+            }
+            else
+            {
+                user.TelegramUsername ??= chat.Username;
+                _userDAO.Update(user);
             }
 
             return user;

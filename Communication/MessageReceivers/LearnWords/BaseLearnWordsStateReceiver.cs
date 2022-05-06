@@ -3,15 +3,15 @@ using Entities.Navigation;
 using LogicLayer.Interfaces;
 using LogicLayer.Interfaces.Words;
 
-namespace Receivers
+namespace Communication
 {
-    public abstract class BaseLearnWordsStateStrategy : BaseStateStrategy
+    public abstract class BaseLearnWordsStateReceiver : BaseMessageReceiver
     {
         protected readonly IWordsLogic _wordsLogic;
         protected readonly IWordsAccessor _wordsAccessor;
 
 
-        protected BaseLearnWordsStateStrategy(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO)
+        protected BaseLearnWordsStateReceiver(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO)
         {
             _wordsLogic = wordsLogic;
             _wordsAccessor = wordsAccessor;

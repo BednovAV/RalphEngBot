@@ -8,13 +8,13 @@ using System.Linq;
 using System.Text;
 using Telegram.Bot.Types;
 
-namespace Receivers
+namespace Communication
 {
-    public abstract class BaseStateStrategy : IStateStrategy
+    public abstract class BaseMessageReceiver : IMessageReceiver
     {
         protected readonly IUserDAO _userDAO;
 
-        protected BaseStateStrategy(IUserDAO userDAO)
+        protected BaseMessageReceiver(IUserDAO userDAO)
         {
             _userDAO = userDAO;
         }

@@ -5,11 +5,11 @@ using LogicLayer.Interfaces;
 using LogicLayer.Interfaces.Words;
 using System.Collections.Generic;
 
-namespace Receivers
+namespace Communication
 {
-    public class LearningStrategy : BaseLearnWordsStateStrategy
+    public class LearningMessageReceiver : BaseLearnWordsStateReceiver
     {
-        public LearningStrategy(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO, wordsLogic, wordsAccessor)
+        public LearningMessageReceiver(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO, wordsLogic, wordsAccessor)
         {
         }
 

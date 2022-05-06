@@ -7,9 +7,9 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Receivers
+namespace Communication
 {
-    public class WaitingCommandStrategy : BaseStateStrategy
+    public class WaitingCommandReceiver : BaseMessageReceiver
     {
         public static UserState State => UserState.WaitingCommand;
 
@@ -19,7 +19,7 @@ namespace Receivers
         public AdministrationConfigSection AdministrationData
             => _configuration.GetSection(AdministrationConfigSection.SectionName).Get<AdministrationConfigSection>();
 
-        public WaitingCommandStrategy(IUserDAO userDAO, IAdministrationDAO administrationDAO, IConfiguration configuration) : base(userDAO)
+        public WaitingCommandReceiver(IUserDAO userDAO, IAdministrationDAO administrationDAO, IConfiguration configuration) : base(userDAO)
         {
             _administrationDAO = administrationDAO;
             _configuration = configuration;

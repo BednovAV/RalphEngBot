@@ -6,13 +6,13 @@ using Helpers;
 using System.Collections.Generic;
 using Telegram.Bot.Types;
 
-namespace Receivers
+namespace Communication
 {
-    public class WaitingNewNameStrategy : BaseStateStrategy
+    public class WaitingNewNameReceiver : BaseMessageReceiver
     {
         public static UserState State => UserState.WaitingNewName;
 
-        public WaitingNewNameStrategy(IUserDAO userDAO) : base(userDAO)
+        public WaitingNewNameReceiver(IUserDAO userDAO) : base(userDAO)
         {
         }
 

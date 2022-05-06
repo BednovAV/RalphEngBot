@@ -1,5 +1,6 @@
 ﻿using AuthenticationCore;
 using Autofac;
+using Communication;
 using DataAccessLayer.Interfaces;
 using DataAccessLayer.Services;
 using LogicLayer.Interfaces;
@@ -7,7 +8,6 @@ using LogicLayer.Interfaces.Words;
 using LogicLayer.Services;
 using LogicLayer.Services.Words;
 using Microsoft.Extensions.Configuration;
-using Receivers;
 using System;
 using Telegram.Bot;
 
@@ -39,21 +39,22 @@ namespace DependencyCore
 
             InitDALRegistrations(builder);
             InitLogicRegistrations(builder);
-            InitRecieversRegistrations(builder);
+            InitMessagesRegistrations(builder);
             InitCoreRegistrations(builder);
 
             return builder.Build();
         }
 
-        private static void InitRecieversRegistrations(ContainerBuilder builder)
+        private static void InitMessagesRegistrations(ContainerBuilder builder)
         {
-            builder.RegisterType<WaitingCommandStrategy>().Keyed<IStateStrategy>(WaitingCommandStrategy.State);
-            builder.RegisterType<WaitingNewNameStrategy>().Keyed<IStateStrategy>(WaitingNewNameStrategy.State);
-            builder.RegisterType<WaitingNewWordStrategy>().Keyed<IStateStrategy>(WaitingNewWordStrategy.State);
-            builder.RegisterType<WaitingWordAnswerStrategy>().Keyed<IStateStrategy>(WaitingWordAnswerStrategy.State);
-            builder.RegisterType<LearningStrategy>().Keyed<IStateStrategy>(LearningStrategy.State);
+            builder.RegisterType<WaitingCommandReceiver>().Keyed<IMessageReceiver>(WaitingCommandReceiver.State);
+            builder.RegisterType<WaitingNewNameReceiver>().Keyed<IMessageReceiver>(WaitingNewNameReceiver.State);
+            builder.RegisterType<WaitingNewWordReceiver>().Keyed<IMessageReceiver>(WaitingNewWordReceiver.State);
+            builder.RegisterType<WaitingWordAnswerReceiver>().Keyed<IMessageReceiver>(WaitingWordAnswerReceiver.State);
+            builder.RegisterType<LearningMessageReceiver>().Keyed<IMessageReceiver>(LearningMessageReceiver.State);
 
             builder.RegisterType<CallbackQuerryReciever>().As<ICallbackQuerryReciever>();
+            builder.RegisterType<ChatManager>().As<IChatManager>();
         }
 
         private static void InitCoreRegistrations(ContainerBuilder builder)

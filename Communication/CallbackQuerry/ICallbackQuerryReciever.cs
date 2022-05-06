@@ -2,7 +2,7 @@
 using Entities.Navigation;
 using Telegram.Bot.Types;
 
-namespace Receivers
+namespace Communication
 {
     public interface ICallbackQuerryReciever
     {

@@ -2,9 +2,9 @@
 using Entities.Navigation;
 using Telegram.Bot.Types;
 
-namespace Receivers
+namespace Communication
 {
-    public interface IStateStrategy
+    public interface IMessageReceiver
     {
         public ActionResult Action(Message message, UserItem user);
         public string StateInfo { get; }

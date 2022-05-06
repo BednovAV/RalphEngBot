@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Telegram.Bot.Types;
 
-namespace Receivers
+namespace Communication
 {
     public class CallbackQuerryReciever : ICallbackQuerryReciever
     {
