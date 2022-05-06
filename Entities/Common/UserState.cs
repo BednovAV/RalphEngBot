@@ -9,7 +9,7 @@ namespace Entities
     public enum UserState
     {
         WaitingCommand = 0,
-        WaitingNewName = 1,
+        LearnGrammarMode = 1,
         WaitingNewWord = 2,
         WaitingWordResponse = 3,
         LearnWordsMode = 4,

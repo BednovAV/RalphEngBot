@@ -21,6 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="scripts\TestFilling.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="scripts\WordsFilling.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -12,13 +12,6 @@ namespace Communication
 {
     public abstract class BaseMessageReceiver : IMessageReceiver
     {
-        protected readonly IUserDAO _userDAO;
-
-        protected BaseMessageReceiver(IUserDAO userDAO)
-        {
-            _userDAO = userDAO;
-        }
-
         public abstract string StateInfo { get; }
 
 

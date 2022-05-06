@@ -7,15 +7,15 @@ using System.Collections.Generic;
 
 namespace Communication
 {
-    public class LearningMessageReceiver : BaseLearnWordsStateReceiver
+    public class LearnWordsMessageReceiver : BaseLearnWordsStateReceiver
     {
-        public LearningMessageReceiver(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO, wordsLogic, wordsAccessor)
+        public LearnWordsMessageReceiver(IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(wordsLogic, wordsAccessor)
         {
         }
 
         public static UserState State => UserState.LearnWordsMode;
 
-        public override string StateInfo => "*Изучение слов* 👨‍🎓\n" + GetCommandsDescriptions();
+        public override string StateInfo => "*Изучение слов* 🧠\n" + GetCommandsDescriptions();
 
 
         protected override IEnumerable<StateCommand> InitStateCommands()

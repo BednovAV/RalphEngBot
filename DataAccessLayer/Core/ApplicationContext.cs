@@ -11,6 +11,9 @@ namespace DataAccessLayer.Core
         private readonly string _connectionString;
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<WordTranslation> WordTranslations { get; set; } = null!;
+        public DbSet<GrammarTest> GrammarTests { get; set; } = null!;
+        public DbSet<TestQuestion> TestQuestions { get; set; } = null!;
+        public DbSet<UserTest> UserTests { get; set; } = null!;
         public ApplicationContext(string connectionString)
         {
             _connectionString = connectionString;

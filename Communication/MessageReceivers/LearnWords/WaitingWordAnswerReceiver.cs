@@ -11,7 +11,7 @@ namespace Communication
 {
     public class WaitingWordAnswerReceiver : BaseLearnWordsStateReceiver
     {
-        public WaitingWordAnswerReceiver(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO, wordsLogic, wordsAccessor)
+        public WaitingWordAnswerReceiver(IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(wordsLogic, wordsAccessor)
         {
         }
 

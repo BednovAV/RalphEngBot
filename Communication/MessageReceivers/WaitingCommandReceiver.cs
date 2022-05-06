@@ -19,7 +19,7 @@ namespace Communication
         public AdministrationConfigSection AdministrationData
             => _configuration.GetSection(AdministrationConfigSection.SectionName).Get<AdministrationConfigSection>();
 
-        public WaitingCommandReceiver(IUserDAO userDAO, IAdministrationDAO administrationDAO, IConfiguration configuration) : base(userDAO)
+        public WaitingCommandReceiver(IAdministrationDAO administrationDAO, IConfiguration configuration)
         {
             _administrationDAO = administrationDAO;
             _configuration = configuration;
@@ -31,24 +31,24 @@ namespace Communication
         {
             return new StateCommand[]
             {
-                RenameCommand,
+                LearnGrammarCommand,
                 LearnWordsCommand,
                 ResetDbCommand
             };
         }
-
-        private StateCommand RenameCommand => new StateCommand
-        {
-            Key = "/rename",
-            Description = "Изменить имя",
-            Execute = (message, user) => "Как я могу к вам обращаться?".ToActionResult(UserState.WaitingNewName)
-        };
 
         private StateCommand LearnWordsCommand => new StateCommand
         {
             Key = "/learnwords",
             Description = "Изучение слов",
             Execute = (message, user) => UserState.LearnWordsMode.ToActionResult()
+        };
+
+        private StateCommand LearnGrammarCommand => new StateCommand
+        {
+            Key = "/learngrammar",
+            Description = "Изучение грамматики",
+            Execute = (message, user) => UserState.LearnGrammarMode.ToActionResult()
         };
 
         private StateCommand ResetDbCommand => new StateCommand

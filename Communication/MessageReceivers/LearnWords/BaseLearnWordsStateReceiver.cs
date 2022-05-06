@@ -11,7 +11,7 @@ namespace Communication
         protected readonly IWordsAccessor _wordsAccessor;
 
 
-        protected BaseLearnWordsStateReceiver(IUserDAO userDAO, IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(userDAO)
+        protected BaseLearnWordsStateReceiver(IWordsLogic wordsLogic, IWordsAccessor wordsAccessor)
         {
             _wordsLogic = wordsLogic;
             _wordsAccessor = wordsAccessor;
