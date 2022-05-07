@@ -49,7 +49,7 @@ namespace LogicLayer.Services.Words
 
         public MessageData GetRightAnswerMsg() => "Верно!".ToMessageData();
 
-        public MessageData GetWordLearnedMsg(string word, WordsLearned learnedWords) 
+        public MessageData GetWordLearnedMsg(string word, WordsLearnedCount learnedWords) 
             => $"Слово *{word}({learnedWords.LearnedCount + 1}/{learnedWords.TotalCount})* выучено! {EMOJI_PARTY_POPPER}".ToMessageData();
 
         public MessageData GetRequsetNewWordMsg(IEnumerable<string> notSelectedWords)

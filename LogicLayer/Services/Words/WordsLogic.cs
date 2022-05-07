@@ -174,7 +174,7 @@ namespace LogicLayer.Services
             else
             {
                 askedWord.Status = WordStatus.Learned;
-                var learnedWords = _userWordsDAO.GetUserWordsLearned(user.Id);
+                var learnedWords = _userWordsDAO.GetUserWordsLearnedCount(user.Id);
                 responceMessage = _messageGenerator.GetWordLearnedMsg(askedWord.Eng, learnedWords);
             }
             return responceMessage;

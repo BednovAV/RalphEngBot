@@ -1,8 +1,11 @@
-﻿namespace Entities.DbModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Entities.DbModels
 {
     public class TheoryLink
     {
-        public string Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
 

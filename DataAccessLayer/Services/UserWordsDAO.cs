@@ -180,9 +180,9 @@ namespace DataAccessLayer.Services
                 }).GetPaged(pageNumber, pageSize));
         }
 
-        public WordsLearned GetUserWordsLearned(long userId)
+        public WordsLearnedCount GetUserWordsLearnedCount(long userId)
         {
-            return UseContext(db => new WordsLearned 
+            return UseContext(db => new WordsLearnedCount 
             { 
                 TotalCount = db.WordTranslations.Count(),
                 LearnedCount = db.Users

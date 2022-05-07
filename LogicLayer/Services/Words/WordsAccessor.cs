@@ -40,7 +40,7 @@ namespace LogicLayer.Services.Words
             var statisticsData = new WordStatisticsData
             {
                 WithAll = withAll,
-                WordsLearned = _userWordsDAO.GetUserWordsLearned(user.Id),
+                WordsLearned = _userWordsDAO.GetUserWordsLearnedCount(user.Id),
             };
             statisticsData.PageData = statisticsData.WithAll
                 ? _userWordsDAO.GetAllWordsStatistics(user.Id, pageNumber, WORDS_PAGE_SIZE)

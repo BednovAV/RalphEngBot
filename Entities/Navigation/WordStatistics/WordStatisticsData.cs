@@ -6,6 +6,6 @@ namespace Entities.Navigation.WordStatistics
     {
         public Page<WordStatisticsItem> PageData { get; set; }
         public bool WithAll { get; set; }
-        public WordsLearned WordsLearned { get; set; }
+        public WordsLearnedCount WordsLearned { get; set; }
     }
 }

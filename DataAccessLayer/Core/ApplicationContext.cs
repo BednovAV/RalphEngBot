@@ -47,6 +47,7 @@ namespace DataAccessLayer.Core
                         j.HasKey(t => new { t.UserId, t.WordTranslationId });
                         j.ToTable("UserWords");
                     });
+            modelBuilder.Entity<UserQuestion>().HasKey(q => new { q.UserId, q.TestQuestionId });
         }
     }
 }
