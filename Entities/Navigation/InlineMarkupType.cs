@@ -21,5 +21,7 @@ namespace Entities.Navigation
         GiveAnswer,
         [Description("Выйти")]
         ExitFromTest,
+        [Description("Сбросить результат")]
+        ResetTestResult,
     }
 }

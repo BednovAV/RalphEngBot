@@ -10,5 +10,6 @@ namespace LogicLayer.Interfaces.Grammar
         ActionResult StartTest(UserItem user, int themeId);
         ActionResult TryCompleteTest(CallbackQuery callback, UserItem user, bool? confirm);
         ActionResult GiveAnswer(CallbackQuery callback, UserItem user, GiveAnswerData data);
+        ActionResult ResetTest(CallbackQuery callback, UserItem user, int themeId);
     }
 }

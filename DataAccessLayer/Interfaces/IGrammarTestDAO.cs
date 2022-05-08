@@ -11,5 +11,6 @@ namespace DataAccessLayer.Interfaces
         UserThemeExtendedItem GetUserThemeItem(long userId, int themeId);
         TestInfo GetTestInfo(int themeId);
         void SaveTestResult(TestResult testResult);
+        void RemoveTestResults(long userId, int themeId);
     }
 }

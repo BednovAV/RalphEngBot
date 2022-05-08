@@ -64,11 +64,14 @@ namespace LogicLayer.Services.Grammar.MessageGenerators
 
         private IReplyMarkup GenerateThemeMarkup(UserThemeExtendedItem theme)
         {
-            return new InlineKeyboardMarkup(new InlineKeyboardButton[][]
+            var result = new List<InlineKeyboardButton[]>();
+            result.Add(new InlineKeyboardButton[] { InlineMarkupType.StartTest.CreateInlineMarkupItem(new ThemeData { ThemeId = theme.Id }) });
+            if (theme.DateCompleted.HasValue)
             {
-                new InlineKeyboardButton[] { InlineMarkupType.StartTest.CreateInlineMarkupItem(new ThemeData { ThemeId = theme.Id }) },
-                new InlineKeyboardButton[] { InlineMarkupType.GoToThemeList.CreateInlineMarkupItem() }
-            });
+                result.Add(new InlineKeyboardButton[] { InlineMarkupType.ResetTestResult.CreateInlineMarkupItem(new ThemeData { ThemeId = theme.Id }) });
+            }
+            result.Add(new InlineKeyboardButton[] { InlineMarkupType.GoToThemeList.CreateInlineMarkupItem() });
+            return new InlineKeyboardMarkup(result);
         }
     }
 }

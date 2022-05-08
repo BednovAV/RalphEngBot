@@ -17,14 +17,26 @@ namespace LogicLayer.Services.Grammar
         private readonly ITestQuestionDAO _testQuestionDAO;
         private readonly IGrammarTestDAO _grammarTestDAO;
         private readonly ITestLogicMessageGenerator _messageGenerator;
+        private readonly IGrammarTestAccessor _grammarTestAccessor;
 
-        public GrammarTestLogic(ITestQuestionDAO testQuestionDAO, IGrammarTestDAO grammarTestDAO, ITestLogicMessageGenerator messageGenerator)
+        public GrammarTestLogic(ITestQuestionDAO testQuestionDAO,
+            IGrammarTestDAO grammarTestDAO, 
+            ITestLogicMessageGenerator messageGenerator,
+            IGrammarTestAccessor grammarTestAccessor)
         {
             _testQuestionDAO = testQuestionDAO;
             _grammarTestDAO = grammarTestDAO;
             _messageGenerator = messageGenerator;
+            _grammarTestAccessor = grammarTestAccessor;
         }
-
+        public ActionResult ResetTest(CallbackQuery callback, UserItem user, int themeId)
+        {
+            _grammarTestDAO.RemoveTestResults(user.Id, themeId);
+            return _grammarTestAccessor
+                .ShowTheme(user, themeId)
+                .MessagesToSend.ToEditMessageData(callback.Message.MessageId)
+                .ToActionResult();
+        }
         public ActionResult GiveAnswer(CallbackQuery callback, UserItem user, GiveAnswerData data)
         {
             var updatedQuestion = _testQuestionDAO.GetAndUpdateQuestion(user.Id, data, callback.Message.MessageId);

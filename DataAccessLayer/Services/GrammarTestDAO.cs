@@ -49,6 +49,11 @@ namespace DataAccessLayer.Services
                 });
         }
 
+        public void RemoveTestResults(long userId, int themeId)
+        {
+            UseContext(db => db.UserTests.RemoveRange(db.UserTests.Where(ut => ut.UserId == userId && ut.GrammarTestId == themeId)));
+        }
+
         public void SaveTestResult(TestResult testResult)
         {
             var userTest = testResult.Map<UserTest>();

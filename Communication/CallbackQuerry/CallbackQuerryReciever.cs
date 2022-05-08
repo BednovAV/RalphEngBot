@@ -44,12 +44,22 @@ namespace Communication
                 { InlineMarkupType.CompleteTest, CompleteTest},
                 { InlineMarkupType.GiveAnswer, GiveAnswer},
                 { InlineMarkupType.ExitFromTest, (callback, user, jsonData) => _grammarTestAccessor.ShowThemes(user)},
+                { InlineMarkupType.ResetTestResult, ResetTestResult},
 
             };
 
         public ActionResult Action(CallbackQuery callbackQuery, UserItem user)
         {
-            var callbackItem = JsonConvert.DeserializeObject<CallbackQuerryItem>(callbackQuery.Data);
+            CallbackQuerryItem callbackItem;
+            try
+            {
+                callbackItem = JsonConvert.DeserializeObject<CallbackQuerryItem>(callbackQuery.Data);
+            }
+            catch (Exception)
+            {
+                return ActionResult.GetEmpty();
+            }
+
             if (CallbackQuerryActionByType.TryGetValue(callbackItem.Type, out var action))
             {
                 return action(callbackQuery, user, callbackItem.Data);
@@ -84,6 +94,11 @@ namespace Communication
                 confirm = JsonConvert.DeserializeObject<bool?>(jsonData);
 
             return _grammarTestLogic.TryCompleteTest(callback, user, confirm);
+        }
+        private ActionResult ResetTestResult(CallbackQuery callback, UserItem user, string jsonData)
+        {
+            var data = JsonConvert.DeserializeObject<ThemeData>(jsonData);
+            return _grammarTestLogic.ResetTest(callback, user, data.ThemeId);
         }
     }
 }
