@@ -7,6 +7,7 @@ namespace Entities.Navigation
     {
         public List<MessageData> MessagesToSend { get; set; } = new List<MessageData>();
         public UserState? SwitchToUserState { get; set; }
+        public bool SilentSwitch { get; set; }
         public List<int> MessageIdsToDelete { get; set; } = new List<int>();
         public List<EditMessageData> MessagesToEdit { get; set; } = new List<EditMessageData>();
 
@@ -32,6 +33,7 @@ namespace Entities.Navigation
             {
                 MessagesToSend = resultMessages,
                 SwitchToUserState = resultState,
+                SilentSwitch = this.SilentSwitch || innerResult.SilentSwitch,
                 MessageIdsToDelete = resultToDeleteMessages,
                 MessagesToEdit = resultEditMessages
             };

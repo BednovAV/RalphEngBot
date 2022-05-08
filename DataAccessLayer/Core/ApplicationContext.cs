@@ -14,6 +14,7 @@ namespace DataAccessLayer.Core
         public DbSet<GrammarTest> GrammarTests { get; set; } = null!;
         public DbSet<TestQuestion> TestQuestions { get; set; } = null!;
         public DbSet<UserTest> UserTests { get; set; } = null!;
+        public DbSet<UserQuestion> UserQuestions { get; set; } = null!;
         public ApplicationContext(string connectionString)
         {
             _connectionString = connectionString;
@@ -47,7 +48,7 @@ namespace DataAccessLayer.Core
                         j.HasKey(t => new { t.UserId, t.WordTranslationId });
                         j.ToTable("UserWords");
                     });
-            modelBuilder.Entity<UserQuestion>().HasKey(q => new { q.UserId, q.TestQuestionId });
+            modelBuilder.Entity<UserTest>().HasKey(ut => new { ut.UserId, ut.GrammarTestId });
         }
     }
 }

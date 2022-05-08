@@ -24,7 +24,7 @@ namespace Communication
 
         public async Task<Message> SendMessage(long userId, MessageData message)
         {
-            return await SendMessageInner(userId, message.Text, message.RemoveKeyboard ? new ReplyKeyboardRemove() : message.ReplyMarkup);
+            return await SendMessageInner(userId, message.Text, message.ParseMode, message.RemoveKeyboard ? new ReplyKeyboardRemove() : message.ReplyMarkup);
         }
 
         public async Task SendMessages(long userId, IEnumerable<MessageData> messages)
@@ -38,7 +38,7 @@ namespace Communication
 
         public Task<Message> EditMessage(long userId, EditMessageData message)
         {
-            return EditMessageInner(userId, message.MessageId, message.Text, message.RemoveKeyboard 
+            return EditMessageInner(userId, message.MessageId, message.Text, message.ParseMode, message.RemoveKeyboard 
                 ? new InlineKeyboardMarkup(Enumerable.Empty<InlineKeyboardButton>())
                 : message.ReplyMarkup as InlineKeyboardMarkup);
         }
@@ -61,31 +61,33 @@ namespace Communication
 
         private Task<Message> SendMessageInner(long userId,
            string text,
+           ParseMode parseMode,
            IReplyMarkup replyMarkup = null)
         {
             return _botClient.SendTextMessageAsync(chatId: userId,
-                                                text: GetMarkdownText(text),
-                                                parseMode: ParseMode.MarkdownV2,
+                                                text: text,//GetMarkdownText(text),
+                                                parseMode: parseMode,
                                                 replyMarkup: replyMarkup);
         }
         private Task<Message> EditMessageInner(long userId,
             int messageId,
             string text,
+            ParseMode parseMode,
             InlineKeyboardMarkup markup = null)
         {
             return _botClient.EditMessageTextAsync(chatId: userId,
                                                 messageId: messageId,
-                                                text: GetMarkdownText(text),
-                                                parseMode: ParseMode.MarkdownV2,
+                                                text: text,//GetMarkdownText(text),
+                                                parseMode: parseMode,
                                                 replyMarkup: markup);
         }
 
-        private static string GetMarkdownText(string text)
+        private static string GetMarkdownV2Text(string text)
         {
             var textBuilder = new StringBuilder(text);
             for (int i = 0; i < textBuilder.Length; i++)
             {
-                if (textBuilder[i] is '!' or '(' or ')' or '-' or '.' or '<' or '>')
+                if (textBuilder[i] is '!' or '-' or '.' or '<' or '>')// or '(' or ')')
                 {
                     textBuilder.Insert(i, '\\');
                     i++;

@@ -1,16 +1,20 @@
-﻿using DataAccessLayer.Interfaces;
-using Entities;
+﻿using Entities;
 using Entities.Navigation;
+using LogicLayer.Interfaces.Grammar;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Communication
 {
     public class LearnGrammarMessageReceiver : BaseLearnGrammarStateReceiver
     {
+        private readonly IGrammarTestAccessor _grammarTestAccessor;
+
+        public LearnGrammarMessageReceiver(IGrammarTestAccessor grammarTestAccessor)
+        {
+            _grammarTestAccessor = grammarTestAccessor;
+        }
+
         public static UserState State => UserState.LearnGrammarMode;
 
         public override string StateInfo => "*Изучение граматики* 👨‍🎓\n" + GetCommandsDescriptions();
@@ -29,7 +33,7 @@ namespace Communication
         {
             Key = "/themes",
             Description = "Список тем для изучения",
-            Execute = (message, user) => throw new NotImplementedException()
+            Execute = (message, user) => _grammarTestAccessor.ShowThemes(user)
         };
 
         protected StateCommand ProgressCommand => new StateCommand

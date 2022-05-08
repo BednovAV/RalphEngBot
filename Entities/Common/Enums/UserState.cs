@@ -13,5 +13,6 @@ namespace Entities
         WaitingNewWord = 2,
         WaitingWordResponse = 3,
         LearnWordsMode = 4,
+        GrammarTestInProgress = 5,
     }
 }

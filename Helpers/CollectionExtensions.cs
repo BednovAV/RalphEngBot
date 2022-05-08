@@ -31,9 +31,19 @@ namespace Helpers
         public static IEnumerable<T> RandomItems<T>(this IEnumerable<T> source, int count)
         {
             var sourceArray = source.ToArray();
+            if (sourceArray.Length < count)
+            {
+                throw new ArgumentException();
+            }
+            var generatedIndexes = new HashSet<int>();
             for (int i = 0; i < count; i++)
             {
-                yield return sourceArray[Random.Next(sourceArray.Length)];
+                var index = Random.Next(sourceArray.Length);
+                while (generatedIndexes.Contains(index))
+                    index = Random.Next(sourceArray.Length);
+
+                generatedIndexes.Add(index);
+                yield return sourceArray[index];
             }
         }
 

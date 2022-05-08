@@ -1,15 +1,11 @@
 ﻿using System;
 
-namespace Entities.DbModels
+namespace Entities.Common.Grammar
 {
-    public class UserTest
+    public class TestResult
     {
         public long UserId { get; set; }
-        public User User { get; set; }
-
         public int GrammarTestId { get; set; }
-        public GrammarTest GrammarTest { get; set; }
-
         public int Score { get; set; }
         public DateTime? DateCompleted { get; set; }
     }

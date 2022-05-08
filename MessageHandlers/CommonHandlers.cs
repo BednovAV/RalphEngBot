@@ -64,7 +64,7 @@ namespace Handlers
             {
                 UserDAO.SwitchUserState(user.Id, newState.Value);
                 var newStateInfo = StrategyByState[newState.Value].StateInfo;
-                if (newStateInfo != null)
+                if (newStateInfo != null && !actionResult.SilentSwitch)
                 {
                     await ChatManager.SendMessage(user.Id, newStateInfo.ToMessageData(removeKeyboard: true));
                 }

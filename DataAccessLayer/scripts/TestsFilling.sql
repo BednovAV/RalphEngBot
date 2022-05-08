@@ -35,7 +35,7 @@ INSERT [dbo].[TestQuestions] ([Id], [Text], [AnswerOptions], [GrammarTestId]) VA
 	(19, N'Great Britain consists of {0} parts.', N'["three", "the three", "a three"]', 1),
 	(20, N'Pushkin, the great Russian poet, was born in {0}.', N'["1799", "the 1799", "a 1799"]', 1),
 	(21, N'I am tired. We {0} for more than an hour. Let is stop and rest for a while.', N'["have been walking", "are walking", "have walked", "walk"]', 2),
-	(22, N'How long {0} a course of lectures on Medieval History?', N'["has Professor Donaldson been delivering", "is Professor Donaldson delivering", "does Professor Donaldson deliver", "has Professor Donaldson delivered"]', 2),
+	(22, N'You may take this magazine. I {0} through it already.', N'["have looked", "look", "have been looking", "am looking"]', 2),
 	(23, N'Sonia {0} as a computer programmer this year, but she would like to try something different in the future.', N'["is working", "works", "has been working", "has worked"]', 2),
 	(24, N'Peter and Mary {0} on the platform. They have been waiting for their train for half an hour.', N'["are standing", "have stood", "stand", "have been standing"]', 2),
 	(25, N'Be careful with paint. It {0} a certain amount of lead.', N'["contains", "is containing", "contained", "has contained"]', 2),

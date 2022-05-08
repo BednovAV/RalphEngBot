@@ -8,9 +8,9 @@ namespace Helpers
 {
     public static class EnumExtensions
     {
-        public static ActionResult ToActionResult(this UserState switchToState)
+        public static ActionResult ToActionResult(this UserState switchToState, bool silentSwitch = false)
         {
-            return new ActionResult { SwitchToUserState = switchToState };
+            return new ActionResult { SwitchToUserState = switchToState, SilentSwitch = silentSwitch };
         }
 
         public static string GetDescription<T>(this T enumerationValue)

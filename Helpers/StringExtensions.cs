@@ -3,6 +3,7 @@ using Entities.Common;
 using Entities.Navigation;
 using System.Collections.Generic;
 using System.Text;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Helpers
@@ -19,9 +20,12 @@ namespace Helpers
             return builder.ToString();
         }
 
-        public static MessageData ToMessageData(this string str, IReplyMarkup replyMarkup = null, bool removeKeyboard = false)
+        public static MessageData ToMessageData(this string str,
+            IReplyMarkup replyMarkup = null, 
+            bool removeKeyboard = false,
+            ParseMode parseMode = ParseMode.Markdown)
         {
-            return new MessageData { Text = str, ReplyMarkup = replyMarkup, RemoveKeyboard = removeKeyboard };
+            return new MessageData { Text = str, ReplyMarkup = replyMarkup, RemoveKeyboard = removeKeyboard, ParseMode = parseMode };
         }
 
         public static ActionResult ToActionResult(this string str, UserState? switchToUserState = null)

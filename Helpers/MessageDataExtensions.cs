@@ -40,6 +40,7 @@ namespace Helpers
                 Text = messageData.Text,
                 RemoveKeyboard = messageData.RemoveKeyboard,
                 ReplyMarkup = messageData.ReplyMarkup,
+                ParseMode = messageData.ParseMode,
             };
         }
     }

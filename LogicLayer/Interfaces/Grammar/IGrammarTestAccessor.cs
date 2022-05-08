@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.Common;
+using Entities.Navigation;
 
 namespace LogicLayer.Interfaces.Grammar
 {
     public interface IGrammarTestAccessor
     {
+        ActionResult ShowThemes(UserItem user);
+        ActionResult ShowTheme(UserItem user, int themeId);
     }
 }
