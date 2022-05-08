@@ -2,6 +2,7 @@
 using DataAccessLayer.Interfaces;
 using Entities;
 using Entities.Common;
+using Entities.Interfaces;
 using Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,11 +26,18 @@ namespace DataAccessLayer.Services
             });
         }
 
-        public List<WordItem> GetRandomWords(int count)
+        public List<WordItem> GetRandomSelectedWords(long userId, int count, params IWord[] excludeWords)
         {
             return UseContext(db =>
             {
-                return db.WordTranslations.RandomItems(count).Map<List<WordItem>>();
+                return db.Users
+                    .Include(u => u.UserWords)
+                    .Include(u => u.WordTranslations)
+                    .First(u => u.Id == userId).UserWords
+                    .Where(w => w.Status.HasFlag(WordStatus.Selected) && !excludeWords.Any(x => x.Id == w.WordTranslationId))
+                    .Select(w => w.WordTranslation)
+                    .RandomItems(count)
+                    .Map<List<WordItem>>();
             });
         }
 

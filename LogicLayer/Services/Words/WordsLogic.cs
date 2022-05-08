@@ -119,10 +119,10 @@ namespace LogicLayer.Services
             askedWord.Status |= WordStatus.Hinted;
             _userWordsDAO.UpdateUserWord(user.Id, askedWord);
 
-            return GetWordHints(askedWord).ToActionResult();
+            return GetWordHints(user, askedWord).ToActionResult();
         }
 
-        private IEnumerable<MessageData> GetWordHints(WordLearnItem askedWord)
+        private IEnumerable<MessageData> GetWordHints(UserItem user, WordLearnItem askedWord)
         {
             var messages = new List<MessageData>();
             switch (DefineLevel(askedWord.Recognitions))
@@ -131,10 +131,10 @@ namespace LogicLayer.Services
                     messages.Add(_messageGenerator.GetFirstLevelHint(askedWord));
                     break;
                 case 2:
-                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(askedWord, Language.Rus)));
+                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(user, askedWord, Language.Rus)));
                     break;
                 case 3:
-                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(askedWord, Language.Eng)));
+                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(user, askedWord, Language.Eng)));
                     break;
             }
             return messages;
@@ -184,17 +184,17 @@ namespace LogicLayer.Services
         {
             var wordForAsking = selectedWords.RandomItem();
             _userWordsDAO.SetWordIsAsked(user.Id, wordForAsking.Id);
-            return GetAskWordMessages(wordForAsking).ToActionResult(UserState.WaitingWordResponse);
+            return GetAskWordMessages(user, wordForAsking).ToActionResult(UserState.WaitingWordResponse);
         }
 
-        private IEnumerable<MessageData> GetAskWordMessages(WordLearnItem wordForAsking)
+        private IEnumerable<MessageData> GetAskWordMessages(UserItem user, WordLearnItem wordForAsking)
         {
             var result = new List<MessageData>();
             switch (DefineLevel(wordForAsking.Recognitions))
             {
                 case 1:
                     result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus));
-                    result.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(wordForAsking, Language.Rus)));
+                    result.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(user, wordForAsking, Language.Rus)));
                     break;
                 case 2:
                     result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus));
@@ -227,9 +227,9 @@ namespace LogicLayer.Services
             }
         }
 
-        private string[] CreateAnswerOptions(WordLearnItem wordForAsking, Language lang)
+        private string[] CreateAnswerOptions(UserItem user, WordLearnItem wordForAsking, Language lang)
         {
-            var randomWords = _wordTranslationDAO.GetRandomWords(COUNT_OF_ANSWER_OPTIONS - 1);
+            var randomWords = _wordTranslationDAO.GetRandomSelectedWords(user.Id, COUNT_OF_ANSWER_OPTIONS - 1, wordForAsking);
             randomWords.Add(wordForAsking.Map<WordItem>());
             return randomWords
                 .GetShuffled()
