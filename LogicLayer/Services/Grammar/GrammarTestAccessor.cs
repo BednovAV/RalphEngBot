@@ -6,6 +6,7 @@ using Helpers;
 using LogicLayer.Interfaces.Grammar;
 using System.Collections.Generic;
 using System.Linq;
+using Telegram.Bot.Types;
 
 namespace LogicLayer.Services.Grammar
 {
@@ -20,16 +21,16 @@ namespace LogicLayer.Services.Grammar
             _messageGenerator = messageGenerator;
         }
 
-        public ActionResult ShowTheme(UserItem user, int themeId)
+        public MessageData ShowTheme(UserItem user, int themeId)
         {
             var userThemeItem = _grammarTestDAO.GetUserThemeItem(user.Id, themeId);
-            return _messageGenerator.GetShowThemeMsg(userThemeItem).ToActionResult();
+            return _messageGenerator.GetShowThemeMsg(userThemeItem);
         }
 
-        public ActionResult ShowThemes(UserItem user)
+        public MessageData ShowThemes(UserItem user)
         {
             var userThemes = GetUserThemes(_grammarTestDAO.GetThemes(), _grammarTestDAO.GetUserTests(user.Id));
-            return _messageGenerator.GetThemesListMsg(userThemes).ToActionResult();
+            return _messageGenerator.GetThemesListMsg(userThemes);
         }
 
         private List<UserThemeItem> GetUserThemes(List<ThemeItem> allThemes, List<UserTestItem> userTests)

@@ -11,5 +11,6 @@ namespace Entities.Common
         WrongAnswer = 8,
         Learned = 16,
         Hinted = 32,
+        InRepetition = 64,
     }
 }

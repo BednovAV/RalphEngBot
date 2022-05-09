@@ -1,6 +1,8 @@
-﻿namespace Entities.ConfigSections
+﻿using Entities.Common.Enums;
+
+namespace Entities.ConfigSections
 {
-    public class LearnWordsConfigSection
+    public class LearnWordsConfigSection : IWordsConfigSection
     {
         public static string SectionName => "LearnWordsConfiguration";
 
@@ -9,7 +11,9 @@
         public int FirstLevelPoints { get; set; }
         public int SecondLevelPoints { get; set; }
         public int ThirdLevelPoints { get; set; }
+        public int RightAnswersForComplete => FirstLevelPoints + SecondLevelPoints + ThirdLevelPoints;
 
-        public int RightAnswersForLearned => FirstLevelPoints + SecondLevelPoints + ThirdLevelPoints;
+
+        public WordsMode Mode => WordsMode.Learning;
     }
 }

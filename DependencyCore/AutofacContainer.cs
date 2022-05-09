@@ -53,10 +53,11 @@ namespace DependencyCore
         {
             builder.RegisterType<WaitingCommandReceiver>().Keyed<IMessageReceiver>(WaitingCommandReceiver.State);
             builder.RegisterType<WaitingNewWordReceiver>().Keyed<IMessageReceiver>(WaitingNewWordReceiver.State);
-            builder.RegisterType<WaitingWordAnswerReceiver>().Keyed<IMessageReceiver>(WaitingWordAnswerReceiver.State);
+            builder.RegisterType<WaitingLearnWordAnswerReceiver>().Keyed<IMessageReceiver>(WaitingLearnWordAnswerReceiver.State);
             builder.RegisterType<LearnWordsMessageReceiver>().Keyed<IMessageReceiver>(LearnWordsMessageReceiver.State);
             builder.RegisterType<LearnGrammarMessageReceiver>().Keyed<IMessageReceiver>(LearnGrammarMessageReceiver.State);
             builder.RegisterType<GrammarTestInProgressReciever>().Keyed<IMessageReceiver>(GrammarTestInProgressReciever.State);
+            builder.RegisterType<WaitingRepeatWordAnswerReceiver>().Keyed<IMessageReceiver>(WaitingRepeatWordAnswerReceiver.State);
 
             builder.RegisterType<CallbackQuerryReciever>().As<ICallbackQuerryReciever>();
             builder.RegisterType<ChatManager>().As<IChatManager>();
@@ -69,8 +70,9 @@ namespace DependencyCore
         
         private static void InitLogicRegistrations(ContainerBuilder builder)
         {
-            builder.RegisterType<WordsLogic>().As<IWordsLogic>();
-            builder.RegisterType<LearnWordsMessageGenerator>().As<ILearnWordsMessageGenerator>();
+            builder.RegisterType<RepetitionWordsLogic>().As<IRepetitionWordsLogic>();
+            builder.RegisterType<LearnWordsLogic>().As<ILearnWordsLogic>();
+            builder.RegisterType<WordsLogicMessageGenerator>().As<IWordsLogicMessageGenerator>();
 
             builder.RegisterType<WordsAccessor>().As<IWordsAccessor>();
             builder.RegisterType<WordsAccessorMessageGenerator>().As<IWordsAccessorMessageGenerator>();

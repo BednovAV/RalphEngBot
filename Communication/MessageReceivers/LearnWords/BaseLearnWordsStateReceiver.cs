@@ -7,13 +7,14 @@ namespace Communication
 {
     public abstract class BaseLearnWordsStateReceiver : BaseMessageReceiver
     {
-        protected readonly IWordsLogic _wordsLogic;
+        protected readonly ILearnWordsLogic _learnWordsLogic;
+        protected readonly IRepetitionWordsLogic _repetitionWordsLogic;
         protected readonly IWordsAccessor _wordsAccessor;
 
-
-        protected BaseLearnWordsStateReceiver(IWordsLogic wordsLogic, IWordsAccessor wordsAccessor)
+        protected BaseLearnWordsStateReceiver(ILearnWordsLogic learnWordsLogic, IRepetitionWordsLogic repetitionWordsLogic, IWordsAccessor wordsAccessor)
         {
-            _wordsLogic = wordsLogic;
+            _learnWordsLogic = learnWordsLogic;
+            _repetitionWordsLogic = repetitionWordsLogic;
             _wordsAccessor = wordsAccessor;
         }
 
@@ -21,7 +22,7 @@ namespace Communication
         {
             Key = "/back",
             Description = "Выйти",
-            Execute = (message, user) => _wordsLogic.StopLearn(user)
+            Execute = (message, user) => _learnWordsLogic.StopWordsAction(user)
         };
     }
 }

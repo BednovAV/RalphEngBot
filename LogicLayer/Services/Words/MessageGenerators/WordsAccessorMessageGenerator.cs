@@ -43,7 +43,7 @@ namespace LogicLayer.Services.Words
                 {
                     builder.Append(item.LearnInfo.Status.HasFlag(WordStatus.Learned)
                         ? " " + EMOJI_GREEN_CHECKMARK
-                        : $" (в изучении {item.LearnInfo.Recognitions}/{LearnWordsConfig.RightAnswersForLearned})");
+                        : $" (в изучении {item.LearnInfo.Recognitions}/{LearnWordsConfig.RightAnswersForComplete})");
                 }
                 builder.AppendLine();
             }

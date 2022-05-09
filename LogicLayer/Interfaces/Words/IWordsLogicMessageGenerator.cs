@@ -1,14 +1,18 @@
 ﻿using Entities.Common;
+using Entities.ConfigSections;
 using Entities.Navigation;
 using System.Collections.Generic;
 
 namespace LogicLayer.Interfaces.Words
 {
-    public interface ILearnWordsMessageGenerator
+    public interface IWordsLogicMessageGenerator
     {
+        IWordsConfigSection WordsConfig { get; set; }
+
         MessageData GetNotEnoughWordsMsg(int notEnoughCount);
         MessageData GetRightAnswerMsg();
         MessageData GetWordLearnedMsg(string word, WordsLearnedCount learnedWords);
+        MessageData GetWordRepeatedMsg(string word);
         MessageData GetWordNotFoundMsg();
         MessageData GetWordSuccesfullySelectedMsg(string word);
         MessageData GetRequsetNewWordMsg(IEnumerable<string> notSelectedWords);
@@ -19,5 +23,7 @@ namespace LogicLayer.Interfaces.Words
         MessageData GetFirstLevelHint(WordLearnItem askedWord);
         MessageData GetAskWordCallMsg();
         MessageData GetStartLearnMsg();
+        MessageData GetStartRepetitionMsg();
+        MessageData GetNotRepetitionWordsMsg();
     }
 }

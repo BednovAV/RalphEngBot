@@ -13,6 +13,7 @@ namespace DataAccessLayer.Interfaces
     {
         List<WordLearnItem> GetLearnItemsByUser(long userId);
         List<WordLearnItem> GetNotLearnedUserWords(long userId);
+        List<WordLearnItem> GetRepetitionUserWords(long userId);
         List<WordItem> GetNotSelectedUserWords(long userId);
         void InitWordsForUser(long userId);
         bool TrySelectWord(long userId, string word);
@@ -20,9 +21,11 @@ namespace DataAccessLayer.Interfaces
         void SetWordIsAsked(long userId, int wordId);
         WordLearnItem GetAskedUserWord(long userId);
         void UpdateUserWord(long userId, WordLearnItem updatedUserWord);
+        void UpdateUserWords(long userId, List<WordLearnItem> updatedUserWords);
         void ResetWordStatuses(long userId);
         Page<WordStatisticsItem> GetUserWordsStatistics(long userId, int pageNumber, int pageSize);
         Page<WordStatisticsItem> GetAllWordsStatistics(long userId, int pageNumber, int pageSize);
         WordsLearnedCount GetUserWordsLearnedCount(long userId);
+        List<WordLearnItem> GetOldestLearnedUserWords(long userId, int count, DateTime maxDateLearned);
     }
 }

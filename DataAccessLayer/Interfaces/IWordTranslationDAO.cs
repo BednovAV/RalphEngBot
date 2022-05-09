@@ -9,5 +9,6 @@ namespace DataAccessLayer.Interfaces
         //WordTranslation GetById(int id);
         WordItem GetNewWordForUser(long userId);
         List<WordItem> GetRandomSelectedWords(long userId, int count, params IWord[] excludeWords);
+        List<WordItem> GetRandomWords(int count);
     }
 }

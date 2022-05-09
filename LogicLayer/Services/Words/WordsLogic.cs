@@ -1,116 +1,55 @@
 ﻿using DataAccessLayer.Interfaces;
-using DataAccessLayer.Services;
 using Entities;
 using Entities.Common;
+using Entities.Common.Enums;
 using Entities.ConfigSections;
 using Entities.Navigation;
-using Entities.Navigation.InlineMarkupData;
 using Helpers;
-using LogicLayer.Interfaces;
 using LogicLayer.Interfaces.Words;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace LogicLayer.Services
+namespace LogicLayer.Services.Words
 {
-    public class WordsLogic : IWordsLogic
+    public abstract class WordsLogic
     {
         private const int COUNT_OF_ANSWER_OPTIONS = 4;
 
-        private readonly IUserWordsDAO _userWordsDAO;
-        private readonly IWordTranslationDAO _wordTranslationDAO;
-        private readonly IConfiguration _configuration;
-        private readonly IUserDAO _userDAO;
-        private readonly ILearnWordsMessageGenerator _messageGenerator;
+        protected readonly IConfiguration _configuration;
+        protected readonly IUserWordsDAO _userWordsDAO;
+        protected readonly IWordsLogicMessageGenerator _messageGenerator;
+        protected readonly IWordTranslationDAO _wordTranslationDAO;
 
-        public LearnWordsConfigSection LearnWordsConfig => _configuration.GetSection(LearnWordsConfigSection.SectionName).Get<LearnWordsConfigSection>();
 
-        public WordsLogic(IUserWordsDAO userWordsDAO,
-            IConfiguration configuration,
-            IWordTranslationDAO wordTranslationDAO,
-            IUserDAO userDAO, 
-            ILearnWordsMessageGenerator messageGenerator)
+        public WordsLogic(IUserWordsDAO userWordsDAO, IWordsLogicMessageGenerator messageGenerator, IWordTranslationDAO wordTranslationDAO, IConfiguration configuration)
         {
             _userWordsDAO = userWordsDAO;
-            _configuration = configuration;
-            _wordTranslationDAO = wordTranslationDAO;
-            _userDAO = userDAO;
             _messageGenerator = messageGenerator;
+            _wordTranslationDAO = wordTranslationDAO;
+            _configuration = configuration;
+            _messageGenerator.WordsConfig = WordsConfig;
         }
+        public LearnWordsConfigSection LearnWordsConfig 
+            => _configuration.GetSection(LearnWordsConfigSection.SectionName).Get<LearnWordsConfigSection>();
+        public RepetitionWordsConfigSection RepetitionWordsConfig
+            => _configuration.GetSection(RepetitionWordsConfigSection.SectionName).Get<RepetitionWordsConfigSection>();
 
-        public ActionResult StartLearnWords(UserItem user)
-        {
-            return _messageGenerator.GetStartLearnMsg().ToActionResult().Append(LearnWords(user));
-        }
+        public abstract IWordsConfigSection WordsConfig { get; }
 
-        public ActionResult LearnWords(UserItem user)
-        {
-            var result = new ActionResult();
-
-            var notLearnedWords = _userWordsDAO.GetNotLearnedUserWords(user.Id);
-            var selectedWords = notLearnedWords.Where(w => w.Status.HasFlag(WordStatus.Selected)).ToList();
-            if (selectedWords.Count < LearnWordsConfig.WordsForLearnCount)
-            {
-                result.MessagesToSend.Add(_messageGenerator.GetNotEnoughWordsMsg(LearnWordsConfig.WordsForLearnCount - selectedWords.Count));
-                return result.Append(RequestNewWord(user, notLearnedWords));
-            }
-            else
-            {
-                return result.Append(AskWord(user, selectedWords));
-            }
-        }
-
-        public ActionResult StopLearn(UserItem user)
+        public ActionResult StopWordsAction(UserItem user)
         {
             _userWordsDAO.ResetWordStatuses(user.Id);
             return UserState.LearnWordsMode.ToActionResult();
         }
 
-        public ActionResult SelectWord(Message message, UserItem user)
+        public ActionResult AskWord(UserItem user, List<WordLearnItem> wordsForAsking)
         {
-            List<MessageData> result = new List<MessageData>();
-            if (_userWordsDAO.TrySelectWord(user.Id, message.Text))
-            {
-                result.Add(_messageGenerator.GetWordSuccesfullySelectedMsg(message.Text));
-            }
-            else
-            {
-                result.Add(_messageGenerator.GetWordNotFoundMsg());
-            }
-
-            return result.ToActionResult().Append(LearnWords(user));
-        }
-
-        public ActionResult ProcessWordResponse(Message message, UserItem user)
-        {
-            List<MessageData> resultMsgs = new List<MessageData>();
-            var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
-            if (IsCorrectAnswer(message, askedWord))
-            {
-                resultMsgs.Add(ProcessRightUserAnswer(askedWord, user));
-            }
-            else if (askedWord.Status.HasFlag(WordStatus.WrongAnswer))
-            {
-                askedWord.Recognitions = 0;
-                askedWord.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer | WordStatus.Hinted);
-                resultMsgs.Add(_messageGenerator.GetSecondWrongAnswerMsg(askedWord));
-            }
-            else
-            {
-                askedWord.Status |= WordStatus.WrongAnswer;
-                _userWordsDAO.UpdateUserWord(user.Id, askedWord);
-                resultMsgs.Add(_messageGenerator.GetFirstWrongAnswerMsg());
-                return resultMsgs.ToActionResult();
-            }
-
-            _userWordsDAO.UpdateUserWord(user.Id, askedWord);
-            return resultMsgs.ToActionResult().Append(LearnWords(user));
+            var wordForAsking = wordsForAsking.RandomItem();
+            _userWordsDAO.SetWordIsAsked(user.Id, wordForAsking.Id);
+            return GetAskWordMessages(user, wordForAsking).ToActionResult();
         }
 
         public ActionResult HintWord(UserItem user)
@@ -121,29 +60,39 @@ namespace LogicLayer.Services
 
             return GetWordHints(user, askedWord).ToActionResult();
         }
-
-        private IEnumerable<MessageData> GetWordHints(UserItem user, WordLearnItem askedWord)
+        public ActionResult ProcessWordResponse(Message message, UserItem user)
         {
-            var messages = new List<MessageData>();
-            switch (DefineLevel(askedWord.Recognitions))
+            ActionResult result;
+            var askedWord = _userWordsDAO.GetAskedUserWord(user.Id);
+
+            if (IsCorrectAnswer(message, askedWord))
             {
-                case 1:
-                    messages.Add(_messageGenerator.GetFirstLevelHint(askedWord));
-                    break;
-                case 2:
-                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(user, askedWord, Language.Rus)));
-                    break;
-                case 3:
-                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(user, askedWord, Language.Eng)));
-                    break;
+                result = ProcessRightUserAnswer(askedWord, user).ToActionResult();
             }
-            return messages;
+            else if (askedWord.Status.HasFlag(WordStatus.WrongAnswer))
+            {
+                askedWord.Recognitions = 0;
+                askedWord.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer | WordStatus.Hinted);
+                result = _messageGenerator.GetSecondWrongAnswerMsg(askedWord).ToActionResult();
+            }
+            else
+            {
+                askedWord.Status |= WordStatus.WrongAnswer;
+                _userWordsDAO.UpdateUserWord(user.Id, askedWord);
+                return _messageGenerator.GetFirstWrongAnswerMsg().ToActionResult();
+            }
+
+            _userWordsDAO.UpdateUserWord(user.Id, askedWord);
+            return result.Append(NextWord(user));
         }
+
+        protected abstract ActionResult NextWord(UserItem user);
 
         private bool IsCorrectAnswer(Message message, WordLearnItem askedWord)
         {
             var userAnswer = message.Text.Split('/').First().Trim().ToLowerInvariant();
-            if (askedWord.Recognitions < LearnWordsConfig.FirstLevelPoints + LearnWordsConfig.SecondLevelPoints)
+            var config = DefineConfig(askedWord);
+            if (askedWord.Recognitions < config.FirstLevelPoints + config.SecondLevelPoints)
             {
                 var askedWordRuValues = askedWord.Rus
                     .Split('/')
@@ -163,34 +112,52 @@ namespace LogicLayer.Services
             {
                 askedWord.Recognitions++;
             }
-            var remainingCount = LearnWordsConfig.RightAnswersForLearned - askedWord.Recognitions;
+            var config = DefineConfig(askedWord);
+            var remainingCount = config.RightAnswersForComplete - askedWord.Recognitions;
 
-            MessageData responceMessage;
             if (remainingCount != 0)
             {
                 askedWord.Status &= ~(WordStatus.Asked | WordStatus.WrongAnswer | WordStatus.Hinted);
-                responceMessage = _messageGenerator.GetRightAnswerMsg();
+                return _messageGenerator.GetRightAnswerMsg();
             }
             else
             {
                 askedWord.Status = WordStatus.Learned;
-                var learnedWords = _userWordsDAO.GetUserWordsLearnedCount(user.Id);
-                responceMessage = _messageGenerator.GetWordLearnedMsg(askedWord.Eng, learnedWords);
+                askedWord.DateLearned = DateTime.Now;
+                if (config.Mode == WordsMode.Learning)
+                {
+                    var learnedWords = _userWordsDAO.GetUserWordsLearnedCount(user.Id);
+                    return _messageGenerator.GetWordLearnedMsg(askedWord.Eng, learnedWords);
+                }
+                else
+                {
+                    return _messageGenerator.GetWordRepeatedMsg(askedWord.Eng);
+                }
             }
-            return responceMessage;
         }
 
-        private ActionResult AskWord(UserItem user, List<WordLearnItem> selectedWords)
+        private IEnumerable<MessageData> GetWordHints(UserItem user, WordLearnItem askedWord)
         {
-            var wordForAsking = selectedWords.RandomItem();
-            _userWordsDAO.SetWordIsAsked(user.Id, wordForAsking.Id);
-            return GetAskWordMessages(user, wordForAsking).ToActionResult(UserState.WaitingWordResponse);
+            var messages = new List<MessageData>();
+            switch (DefineLevel(askedWord))
+            {
+                case 1:
+                    messages.Add(_messageGenerator.GetFirstLevelHint(askedWord));
+                    break;
+                case 2:
+                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(user, askedWord, Language.Rus)));
+                    break;
+                case 3:
+                    messages.Add(_messageGenerator.GetAskWordAnswerOptions(CreateAnswerOptions(user, askedWord, Language.Eng)));
+                    break;
+            }
+            return messages;
         }
 
         private IEnumerable<MessageData> GetAskWordMessages(UserItem user, WordLearnItem wordForAsking)
         {
             var result = new List<MessageData>();
-            switch (DefineLevel(wordForAsking.Recognitions))
+            switch (DefineLevel(wordForAsking))
             {
                 case 1:
                     result.Add(_messageGenerator.GetAskWordMsg(wordForAsking, Language.Eng, Language.Rus));
@@ -211,13 +178,14 @@ namespace LogicLayer.Services
             return result;
         }
 
-        private int DefineLevel(int points)
+        private int DefineLevel(WordLearnItem word)
         {
-            if (points < LearnWordsConfig.FirstLevelPoints)
+            var config = DefineConfig(word);
+            if (word.Recognitions < config.FirstLevelPoints)
             {
                 return 1;
             }
-            else if (points < LearnWordsConfig.FirstLevelPoints + LearnWordsConfig.SecondLevelPoints)
+            else if (word.Recognitions < config.FirstLevelPoints + config.SecondLevelPoints)
             {
                 return 2;
             }
@@ -229,34 +197,20 @@ namespace LogicLayer.Services
 
         private string[] CreateAnswerOptions(UserItem user, WordLearnItem wordForAsking, Language lang)
         {
-            var randomWords = _wordTranslationDAO.GetRandomSelectedWords(user.Id, COUNT_OF_ANSWER_OPTIONS - 1, wordForAsking);
+            var randomWords = DefineConfig(wordForAsking).Mode == WordsMode.Learning 
+                ? _wordTranslationDAO.GetRandomSelectedWords(user.Id, COUNT_OF_ANSWER_OPTIONS - 1, wordForAsking)
+                : _wordTranslationDAO.GetRandomWords(COUNT_OF_ANSWER_OPTIONS - 1);
             randomWords.Add(wordForAsking.Map<WordItem>());
             return randomWords
                 .GetShuffled()
                 .Select(w => lang is Language.Eng ? w.Eng : w.Rus)
                 .ToArray();
         }
-
-        private ActionResult RequestNewWord(UserItem user, List<WordLearnItem> notLearnedWords)
+        private IWordsConfigSection DefineConfig(WordLearnItem word)
         {
-            var notSelectedWords = GetAndUpdateNotSelectedWords(user, notLearnedWords);
-            return _messageGenerator.GetRequsetNewWordMsg(notSelectedWords).ToActionResult(UserState.WaitingNewWord);
-        }
-
-        private string[] GetAndUpdateNotSelectedWords(UserItem user, List<WordLearnItem> notLearnedWords)
-        {
-            var notSelectedUserWords = new WordLearnItem[LearnWordsConfig.RequestWordsCount];
-            notLearnedWords.Where(w => w.Status == WordStatus.NotSelected).ToList().ForEach(w => notSelectedUserWords[w.Order] = w);
-            for (int i = 0; i < LearnWordsConfig.RequestWordsCount; i++)
-            {
-                if (notSelectedUserWords[i] == null)
-                {
-                    notSelectedUserWords[i] = _wordTranslationDAO.GetNewWordForUser(user.Id).Map<WordLearnItem>();
-                    notSelectedUserWords[i].Order = i;
-                    _userWordsDAO.AddUserWord(user.Id, notSelectedUserWords[i].Id, notSelectedUserWords[i].Order);
-                }
-            }
-            return notSelectedUserWords.Select(w => w.ToRequestedWord()).ToArray();
+            return word.Status.HasFlag(WordStatus.InRepetition)
+                ? RepetitionWordsConfig
+                : LearnWordsConfig;
         }
     }
 }

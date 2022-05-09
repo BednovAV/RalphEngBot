@@ -29,16 +29,22 @@ namespace DataAccessLayer.Services
         public List<WordItem> GetRandomSelectedWords(long userId, int count, params IWord[] excludeWords)
         {
             return UseContext(db =>
-            {
-                return db.Users
+                db.Users
                     .Include(u => u.UserWords)
                     .Include(u => u.WordTranslations)
                     .First(u => u.Id == userId).UserWords
                     .Where(w => w.Status.HasFlag(WordStatus.Selected) && !excludeWords.Any(x => x.Id == w.WordTranslationId))
                     .Select(w => w.WordTranslation)
                     .RandomItems(count)
-                    .Map<List<WordItem>>();
-            });
+                    .Map<List<WordItem>>());
+        }
+
+        public List<WordItem> GetRandomWords(int count)
+        {
+            return UseContext(db => 
+                db.WordTranslations
+                    .RandomItems(count)
+                    .Map<List<WordItem>>());
         }
 
         //public WordTranslation GetById(int id)

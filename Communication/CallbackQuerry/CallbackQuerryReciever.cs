@@ -15,36 +15,36 @@ namespace Communication
 {
     public class CallbackQuerryReciever : ICallbackQuerryReciever
     {
-        private readonly IWordsLogic _wordsLogic;
         private readonly IWordsAccessor _wordsAccessor;
+        private readonly ILearnWordsLogic _learnWordsLogic;
         private readonly IGrammarTestAccessor _grammarTestAccessor;
         private readonly IGrammarTestLogic _grammarTestLogic;
 
-        public CallbackQuerryReciever(IWordsLogic wordsLogic,
+        public CallbackQuerryReciever(
             IWordsAccessor wordsAccessor,
-            IGrammarTestAccessor grammarTestAccessor, 
-            IGrammarTestLogic grammarTestLogic)
+            IGrammarTestAccessor grammarTestAccessor,
+            IGrammarTestLogic grammarTestLogic, ILearnWordsLogic learnWordsLogic)
         {
-            _wordsLogic = wordsLogic;
             _wordsAccessor = wordsAccessor;
             _grammarTestAccessor = grammarTestAccessor;
             _grammarTestLogic = grammarTestLogic;
+            _learnWordsLogic = learnWordsLogic;
         }
 
         public Dictionary<InlineMarkupType, Func<CallbackQuery, UserItem, string, ActionResult>> CallbackQuerryActionByType
             => new Dictionary<InlineMarkupType, Func<CallbackQuery, UserItem, string, ActionResult>>
             {
-                { InlineMarkupType.ExitFromWordsLearning, (callback, user, jsonData) => _wordsLogic.StopLearn(user) },
-                { InlineMarkupType.WordHint, (callback, user, jsonData) => _wordsLogic.HintWord(user) },
+                { InlineMarkupType.ExitFromWordsLearning, (callback, user, jsonData) => _learnWordsLogic.StopWordsAction(user) },
+                { InlineMarkupType.WordHint, (callback, user, jsonData) => _learnWordsLogic.HintWord(user) },
                 { InlineMarkupType.SwitchShowUserWordPage, SwitchShowUserWordPage},
                 { InlineMarkupType.BackToLearnGrammarMode, (callback, user, jsonData) => UserState.LearnGrammarMode.ToActionResult()},
                 { InlineMarkupType.GoToTheme, GoToTheme},
-                { InlineMarkupType.GoToThemeList, (callback, user, jsonData) => _grammarTestAccessor.ShowThemes(user)},
+                { InlineMarkupType.GoToThemeList, GoToThemeList},
                 { InlineMarkupType.StartTest, StartTest},
                 { InlineMarkupType.CompleteTest, CompleteTest},
                 { InlineMarkupType.GiveAnswer, GiveAnswer},
-                { InlineMarkupType.ExitFromTest, (callback, user, jsonData) => _grammarTestAccessor.ShowThemes(user)},
                 { InlineMarkupType.ResetTestResult, ResetTestResult},
+                { InlineMarkupType.ExitFromTest,  (callback, user, jsonData) => _grammarTestAccessor.ShowThemes(user).ToActionResult()},
 
             };
 
@@ -75,7 +75,9 @@ namespace Communication
         private ActionResult GoToTheme(CallbackQuery callback, UserItem user, string jsonData)
         {
             var data = JsonConvert.DeserializeObject<ThemeData>(jsonData);
-            return _grammarTestAccessor.ShowTheme(user, data.ThemeId);
+            return _grammarTestAccessor.ShowTheme(user, data.ThemeId)
+                .ToEditMessageData(callback.Message.MessageId)
+                .ToActionResult();
         }
         private ActionResult StartTest(CallbackQuery callback, UserItem user, string jsonData)
         {
@@ -99,6 +101,12 @@ namespace Communication
         {
             var data = JsonConvert.DeserializeObject<ThemeData>(jsonData);
             return _grammarTestLogic.ResetTest(callback, user, data.ThemeId);
+        }
+        private ActionResult GoToThemeList(CallbackQuery callback, UserItem user, string jsonData)
+        {
+            return _grammarTestAccessor.ShowThemes(user)
+                .ToEditMessageData(callback.Message.MessageId)
+                .ToActionResult();
         }
     }
 }

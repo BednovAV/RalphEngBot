@@ -1,4 +1,5 @@
 ﻿using Entities.Common;
+using System;
 
 namespace Entities.DbModels
 {
@@ -14,5 +15,6 @@ namespace Entities.DbModels
 
         public int Recognitions { get; set; }
         public int? Order { get; set; }
+        public DateTime? DateLearned { get; set; }
     }
 }

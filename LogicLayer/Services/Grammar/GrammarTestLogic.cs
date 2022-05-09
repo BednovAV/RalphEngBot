@@ -32,9 +32,8 @@ namespace LogicLayer.Services.Grammar
         public ActionResult ResetTest(CallbackQuery callback, UserItem user, int themeId)
         {
             _grammarTestDAO.RemoveTestResults(user.Id, themeId);
-            return _grammarTestAccessor
-                .ShowTheme(user, themeId)
-                .MessagesToSend.ToEditMessageData(callback.Message.MessageId)
+            return _grammarTestAccessor.ShowTheme(user, themeId)
+                .ToEditMessageData(callback.Message.MessageId)
                 .ToActionResult();
         }
         public ActionResult GiveAnswer(CallbackQuery callback, UserItem user, GiveAnswerData data)

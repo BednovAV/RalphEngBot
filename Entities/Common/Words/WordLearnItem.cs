@@ -1,4 +1,5 @@
 ﻿using Entities.Interfaces;
+using System;
 
 namespace Entities.Common
 {
@@ -10,5 +11,6 @@ namespace Entities.Common
         public WordStatus Status { get; set; }
         public int Recognitions { get; set; }
         public int Order { get; set; }
+        public DateTime? DateLearned { get; set; }
     }
 }

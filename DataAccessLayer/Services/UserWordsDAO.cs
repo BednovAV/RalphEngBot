@@ -8,6 +8,7 @@ using Entities.Navigation.WordStatistics;
 using Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -132,7 +133,26 @@ namespace DataAccessLayer.Services
 
                 userWord.Recognitions = updatedUserWord.Recognitions;
                 userWord.Status = updatedUserWord.Status;
+                userWord.DateLearned = updatedUserWord.DateLearned;
             });
+        }
+
+        public void UpdateUserWords(long userId, List<WordLearnItem> updatedUserWords)
+        {
+            var updatedUserWordsById = updatedUserWords.ToDictionary(u => u.Id);
+            UseContext(db =>
+                db.Users
+                    .Include(u => u.UserWords)
+                    .First(u => u.Id == userId)
+                    .UserWords.ForEach(userWord =>
+                    {
+                        if (updatedUserWordsById.TryGetValue(userWord.WordTranslationId, out var updatedUserWord))
+                        {
+                            userWord.Recognitions = updatedUserWord.Recognitions;
+                            userWord.Status = updatedUserWord.Status;
+                            userWord.DateLearned = updatedUserWord.DateLearned;
+                        }
+                    }));
         }
 
         public void ResetWordStatuses(long userId)
@@ -192,6 +212,34 @@ namespace DataAccessLayer.Services
                     .Count(uw => uw.Status.HasFlag(WordStatus.Learned))
             });
 
+        }
+
+        public List<WordLearnItem> GetRepetitionUserWords(long userId)
+        {
+            return UseContext(db =>
+               db
+               .Users
+               .Include(u => u.UserWords)
+               .Include(u => u.WordTranslations)
+               .First(u => u.Id == userId)
+               .UserWords
+               .Where(w => w.Status.HasFlag(WordStatus.InRepetition))
+               .Map<List<WordLearnItem>>());
+        }
+
+        public List<WordLearnItem> GetOldestLearnedUserWords(long userId, int count, DateTime maxDateLearned)
+        {
+            return UseContext(db =>
+               db
+               .Users
+               .Include(u => u.UserWords)
+               .Include(u => u.WordTranslations)
+               .First(u => u.Id == userId)
+               .UserWords
+               .Where(w => w.Status.HasFlag(WordStatus.Learned) && !w.Status.HasFlag(WordStatus.InRepetition) && w.DateLearned < maxDateLearned)
+               .OrderBy(w => w.DateLearned)
+               .Take(count)
+               .Map<List<WordLearnItem>>());
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Entities;
 using Entities.Navigation;
+using Helpers;
 using LogicLayer.Interfaces.Grammar;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace Communication
         {
             Key = "/themes",
             Description = "Список тем для изучения",
-            Execute = (message, user) => _grammarTestAccessor.ShowThemes(user)
+            Execute = (message, user) => _grammarTestAccessor.ShowThemes(user).ToActionResult()
         };
 
         protected StateCommand ProgressCommand => new StateCommand

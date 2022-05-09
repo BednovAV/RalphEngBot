@@ -1,5 +1,4 @@
-﻿using DataAccessLayer.Interfaces;
-using Entities;
+﻿using Entities;
 using Entities.Common;
 using Entities.Navigation;
 using LogicLayer.Interfaces;
@@ -9,13 +8,13 @@ using Telegram.Bot.Types;
 
 namespace Communication
 {
-    public class WaitingNewWordReceiver : BaseLearnWordsStateReceiver
+    public class WaitingRepeatWordAnswerReceiver : BaseLearnWordsStateReceiver
     {
-        public WaitingNewWordReceiver(ILearnWordsLogic learnWordsLogic, IRepetitionWordsLogic repetitionWordsLogic, IWordsAccessor wordsAccessor) : base(learnWordsLogic, repetitionWordsLogic, wordsAccessor)
+        public WaitingRepeatWordAnswerReceiver(ILearnWordsLogic learnWordsLogic, IRepetitionWordsLogic repetitionWordsLogic, IWordsAccessor wordsAccessor) : base(learnWordsLogic, repetitionWordsLogic, wordsAccessor)
         {
         }
 
-        public static UserState State => UserState.WaitingNewWord;
+        public static UserState State => UserState.WaitingRepetitionWordResponse;
 
         public override string StateInfo => null;
 
@@ -28,6 +27,6 @@ namespace Communication
         }
 
         protected override ActionResult NoCommandAction(Message message, UserItem user)
-            => _learnWordsLogic.SelectWord(message, user);
+            => _repetitionWordsLogic.ProcessWordResponse(message, user);
     }
 }

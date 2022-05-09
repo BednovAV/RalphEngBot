@@ -9,7 +9,7 @@ namespace Communication
 {
     public class LearnWordsMessageReceiver : BaseLearnWordsStateReceiver
     {
-        public LearnWordsMessageReceiver(IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(wordsLogic, wordsAccessor)
+        public LearnWordsMessageReceiver(ILearnWordsLogic learnWordsLogic, IRepetitionWordsLogic repetitionWordsLogic, IWordsAccessor wordsAccessor) : base(learnWordsLogic, repetitionWordsLogic, wordsAccessor)
         {
         }
 
@@ -23,6 +23,7 @@ namespace Communication
             return new StateCommand[]
             {
                 StartLearnCommand,
+                StartRepetitionCommand,
                 MyWordsCommand,
                 BackToMainCommand
             };
@@ -32,7 +33,13 @@ namespace Communication
         {
             Key = "/startlearn",
             Description = "начать изучение слов",
-            Execute = (message, user) => _wordsLogic.StartLearnWords(user)
+            Execute = (message, user) => _learnWordsLogic.StartLearnWords(user)
+        };
+        private StateCommand StartRepetitionCommand => new StateCommand
+        {
+            Key = "/startrepetition",
+            Description = "повторить изученные слова",
+            Execute = (message, user) => _repetitionWordsLogic.StartRepetition(user)
         };
         private StateCommand MyWordsCommand => new StateCommand
         {

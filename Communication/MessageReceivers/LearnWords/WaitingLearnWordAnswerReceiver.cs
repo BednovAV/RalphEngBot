@@ -9,13 +9,13 @@ using Telegram.Bot.Types;
 
 namespace Communication
 {
-    public class WaitingWordAnswerReceiver : BaseLearnWordsStateReceiver
+    public class WaitingLearnWordAnswerReceiver : BaseLearnWordsStateReceiver
     {
-        public WaitingWordAnswerReceiver(IWordsLogic wordsLogic, IWordsAccessor wordsAccessor) : base(wordsLogic, wordsAccessor)
+        public WaitingLearnWordAnswerReceiver(ILearnWordsLogic learnWordsLogic, IRepetitionWordsLogic repetitionWordsLogic, IWordsAccessor wordsAccessor) : base(learnWordsLogic, repetitionWordsLogic, wordsAccessor)
         {
         }
 
-        public static UserState State => UserState.WaitingWordResponse;
+        public static UserState State => UserState.WaitingLearnWordResponse;
 
 
         public override string StateInfo => null;
@@ -29,6 +29,6 @@ namespace Communication
         }
 
         protected override ActionResult NoCommandAction(Message message, UserItem user) 
-            => _wordsLogic.ProcessWordResponse(message, user);
+            => _learnWordsLogic.ProcessWordResponse(message, user);
     }
 }
