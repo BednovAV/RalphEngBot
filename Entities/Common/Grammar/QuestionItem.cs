@@ -12,5 +12,7 @@ namespace Entities.Common.Grammar
         public string CurrentAnswer { get; set; }
         public int Index { get; set; }
         public int? MessageId { get; set; }
+        public bool IsSended { get; set; }
+        public int CountQuestions { get; set; }
     }
 }

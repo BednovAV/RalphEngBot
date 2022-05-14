@@ -25,18 +25,14 @@ namespace LogicLayer.Services.Grammar.MessageGenerators
         {
             _config = config;
         }
-        public List<MessageData> GetStartTestMsgs(TestInfo testInfo, List<QuestionItem> questions)
+        public MessageData GetStartTestMsgs(TestInfo testInfo)
         {
-            var result = new List<MessageData>();
-            result.Add(testInfo.Description.ToMessageData());
-            questions.ForEach(q => result.Add(GetQuestionMsg(q)));
-            result.Add(GetCompleteTestsg());
-            return result;
+            return testInfo.Description.ToMessageData();
         }
 
         public MessageData GetQuestionMsg(QuestionItem questionItem)
         {
-            return ($"{questionItem.Index}. " + string.Format(questionItem.Text, questionItem.CurrentAnswer.Split(',').Select(a => $"*{a}*").ToArray()))
+            return ($"{questionItem.Index}/{questionItem.CountQuestions}. " + string.Format(questionItem.Text, questionItem.CurrentAnswer.Split(',').Select(a => $"*{a}*").ToArray()))
                 .ToMessageData(GenerateQuestionMarkup(questionItem));
         }
 
@@ -47,7 +43,7 @@ namespace LogicLayer.Services.Grammar.MessageGenerators
 
         public MessageData GetCompleteTestsg()
         {
-            return "Выберите ваш вариант ответа вместо пропусков".ToMessageData(GenerateCompleteTestMarkup());
+            return "Вы можете проверить свои ответы".ToMessageData(GenerateCompleteTestMarkup());
         }
 
         public MessageData GetCompletedQuestion(QuestionItem question)

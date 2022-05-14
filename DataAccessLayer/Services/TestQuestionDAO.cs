@@ -39,6 +39,7 @@ namespace DataAccessLayer.Services
                             AnswerOptions = answerOptions.GetShuffled(),
                             RightAnswer = answerOptions.First(),
                             CurrentAnswer = answerOptions.First().Contains(",") ? $"{PASS},{PASS}" : PASS,
+                            CountQuestions = grammarTest.CountQuestions,
                         };
                     }).ToList();
                 return questions;
@@ -53,7 +54,8 @@ namespace DataAccessLayer.Services
                 AnswerOptions = JsonConvert.SerializeObject(q.AnswerOptions),
                 RightAnswer = q.RightAnswer,
                 UserAnswer = q.CurrentAnswer,
-                Index = q.Index
+                Index = q.Index,
+                IsSended = q.IsSended
             }).ToList();
 
             UseContext(db => questionsForAdd.ForEach(q => db.UserQuestions.Add(q)));
@@ -63,7 +65,10 @@ namespace DataAccessLayer.Services
         {
             return UseContext(db =>
             {
-                var userQuestion = db.UserQuestions.Include(uq => uq.TestQuestion).First(uq => uq.UserId == userId && uq.TestQuestionId == data.QuestionId);
+                var userQuestion = db.UserQuestions
+                    .Include(uq => uq.TestQuestion)
+                    .Include(uq => uq.TestQuestion.GrammarTest)
+                    .First(uq => uq.UserId == userId && uq.TestQuestionId == data.QuestionId);
                 userQuestion.UserAnswer = data.Value;
                 userQuestion.MessageId = messageId;
                 return GetQuestionItem(userQuestion);
@@ -96,6 +101,24 @@ namespace DataAccessLayer.Services
         {
             UseContext(db => db.UserQuestions.RemoveRange(db.UserQuestions.Where(uq => uq.UserId == userId)));
         }
+        public QuestionItem GetUserQuestion(long userId, int index)
+        {
+            return UseContext(db =>
+            {
+                var question = db.UserQuestions
+                    .Include(uq => uq.TestQuestion)
+                    .Include(uq => uq.TestQuestion.GrammarTest)
+                    .First(uq => uq.UserId == userId && uq.Index == index);
+                return GetQuestionItem(question);
+            });
+        }
+        public void SetIsSended(long userId, int testQuestionId)
+        {
+            UseContext(db =>
+                db.UserQuestions
+                    .First(uq => uq.UserId == userId && uq.TestQuestionId == testQuestionId)
+                    .IsSended = true);
+        }
 
         private QuestionItem GetQuestionItem(UserQuestion userQuestion)
         {
@@ -108,6 +131,8 @@ namespace DataAccessLayer.Services
                 RightAnswer = userQuestion.RightAnswer,
                 Index = userQuestion.Index,
                 MessageId = userQuestion.MessageId,
+                IsSended = userQuestion.IsSended,
+                CountQuestions = userQuestion.TestQuestion.GrammarTest.CountQuestions,
             };
         }
     }

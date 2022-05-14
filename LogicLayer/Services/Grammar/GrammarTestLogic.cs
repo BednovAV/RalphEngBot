@@ -39,10 +39,26 @@ namespace LogicLayer.Services.Grammar
         public ActionResult GiveAnswer(CallbackQuery callback, UserItem user, GiveAnswerData data)
         {
             var updatedQuestion = _testQuestionDAO.GetAndUpdateQuestion(user.Id, data, callback.Message.MessageId);
-
-            return _messageGenerator.GetQuestionMsg(updatedQuestion)
+            var result = _messageGenerator.GetQuestionMsg(updatedQuestion)
                 .ToEditMessageData(callback.Message.MessageId)
                 .ToActionResult();
+
+            var nextIndex = updatedQuestion.Index + 1;
+            if (nextIndex <= updatedQuestion.CountQuestions)
+            {
+                var nextQuestion = _testQuestionDAO.GetUserQuestion(user.Id, nextIndex);
+                if (!nextQuestion.IsSended)
+                {
+                    _testQuestionDAO.SetIsSended(user.Id, nextQuestion.TestQuestionId);
+                    result = result.Append(_messageGenerator.GetQuestionMsg(nextQuestion).ToActionResult());
+                    if (nextQuestion.Index == updatedQuestion.CountQuestions)
+                    {
+                        result = result.Append(_messageGenerator.GetCompleteTestsg().ToActionResult());
+                    }
+                }
+            }
+
+            return result;
         }
 
         public ActionResult StartTest(UserItem user, int themeId)
@@ -113,8 +129,14 @@ namespace LogicLayer.Services.Grammar
         {
             var testInfo = _grammarTestDAO.GetTestInfo(themeId);
             var questions = _testQuestionDAO.GenerateAndGetTestQuestions(themeId);
+
+            questions.First().IsSended = true;
             _testQuestionDAO.AddUserQuestions(user.Id, questions);
-            return _messageGenerator.GetStartTestMsgs(testInfo, questions).ToActionResult();
+
+            return _messageGenerator
+                .GetStartTestMsgs(testInfo)
+                .Add(_messageGenerator.GetQuestionMsg(questions.First()))
+                .ToActionResult();
         }
     }
 }

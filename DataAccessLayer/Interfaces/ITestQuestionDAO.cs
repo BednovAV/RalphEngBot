@@ -12,5 +12,7 @@ namespace DataAccessLayer.Interfaces
         bool HasUserQuestion(long userId);
         InProgressTestData GetUserQuestions(long userId);
         void CleanupUserQuestions(long userId);
+        QuestionItem GetUserQuestion(long userId, int index);
+        void SetIsSended(long userId, int testQuestionId);
     }
 }

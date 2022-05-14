@@ -8,6 +8,10 @@ namespace Helpers
 {
     public static class MessageDataExtensions
     {
+        public static List<MessageData> Add(this MessageData inner, MessageData outher)
+        {
+            return new List<MessageData> { inner, outher };
+        }
         public static ActionResult ToActionResult(this MessageData messageData, UserState? switchToUserState = null)
         {
             return new ActionResult

@@ -15,5 +15,6 @@
         public string RightAnswer { get; set; }
         public int Index { get; set; }
         public int? MessageId { get; set; }
+        public bool IsSended { get; set; }
     }
 }

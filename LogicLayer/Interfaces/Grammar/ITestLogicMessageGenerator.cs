@@ -7,7 +7,7 @@ namespace LogicLayer.Interfaces.Grammar
 {
     public interface ITestLogicMessageGenerator
     {
-        List<MessageData> GetStartTestMsgs(TestInfo testInfo, List<QuestionItem> questions);
+        MessageData GetStartTestMsgs(TestInfo testInfo);
         MessageData GetQuestionMsg(QuestionItem questionItem);
         MessageData GetCompleteTestConfirmationMsg();
         MessageData GetCompleteTestsg();
