@@ -8,5 +8,6 @@ namespace LogicLayer.Interfaces.Grammar
     {
         MessageData GetThemesListMsg(List<UserThemeItem> userThemes);
         MessageData GetShowThemeMsg(UserThemeExtendedItem userThemeItem);
+        MessageData GetProgressMsg(List<UserThemeItem> userThemes);
     }
 }

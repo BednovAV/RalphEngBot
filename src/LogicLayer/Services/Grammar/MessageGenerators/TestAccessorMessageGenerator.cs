@@ -45,6 +45,30 @@ namespace LogicLayer.Services.Grammar.MessageGenerators
 
         public MessageData GetThemesListMsg(List<UserThemeItem> userThemes)
             => "Список доступных тем:".ToMessageData(GenerateThemesListMarkup(userThemes));
+        public MessageData GetProgressMsg(List<UserThemeItem> userThemes)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("Прогресс по темам:");
+            var i = 0;
+            foreach (var userTheme in userThemes)
+            {
+                builder.AppendLine($"\t{i++}. {userTheme.Name}: {GetTestResultForProgress(userTheme)}");
+            }
+
+            return builder.ToString().ToMessageData();
+        }
+
+        private string GetTestResultForProgress(UserThemeItem userTheme)
+        {
+            if (userTheme.DateCompleted.HasValue)
+            {
+                return $"{userTheme.Score}%{GrammarTestMessageHelper.GetThemeMark(userTheme.Score, _config)}";
+            }
+            else
+            {
+                return "тест не пройден";
+            }
+        }
 
         private IReplyMarkup GenerateThemesListMarkup(List<UserThemeItem> userThemes)
         {

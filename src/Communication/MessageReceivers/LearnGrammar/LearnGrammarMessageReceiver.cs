@@ -18,7 +18,7 @@ namespace Communication
 
         public static UserState State => UserState.LearnGrammarMode;
 
-        public override string StateInfo => "*Изучение граматики* 👨‍🎓\n" + GetCommandsDescriptions();
+        public override string StateInfo => "*Изучение грамматики* 👨‍🎓\n" + GetCommandsDescriptions();
 
         protected override IEnumerable<StateCommand> InitStateCommands()
         {
@@ -41,7 +41,7 @@ namespace Communication
         {
             Key = "/progress",
             Description = "Мой прогресс",
-            Execute = (message, user) => throw new NotImplementedException()
+            Execute = (message, user) => _grammarTestAccessor.ShowProgress(user).ToActionResult()
         };
     }
 }

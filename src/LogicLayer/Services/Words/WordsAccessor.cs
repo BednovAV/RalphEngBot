@@ -5,7 +5,6 @@ using Entities.Navigation.InlineMarkupData;
 using Entities.Navigation.WordStatistics;
 using Helpers;
 using LogicLayer.Interfaces.Words;
-using System.Collections.Generic;
 using Telegram.Bot.Types;
 
 namespace LogicLayer.Services.Words

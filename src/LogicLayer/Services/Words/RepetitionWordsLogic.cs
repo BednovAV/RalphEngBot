@@ -8,7 +8,6 @@ using LogicLayer.Interfaces.Words;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
-using Telegram.Bot.Types;
 
 namespace LogicLayer.Services.Words
 {

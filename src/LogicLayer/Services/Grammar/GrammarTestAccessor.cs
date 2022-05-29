@@ -33,6 +33,12 @@ namespace LogicLayer.Services.Grammar
             return _messageGenerator.GetThemesListMsg(userThemes);
         }
 
+        public MessageData ShowProgress(UserItem user)
+        {
+            var userThemes = GetUserThemes(_grammarTestDAO.GetThemes(), _grammarTestDAO.GetUserTests(user.Id));
+            return _messageGenerator.GetProgressMsg(userThemes);
+        }
+
         private List<UserThemeItem> GetUserThemes(List<ThemeItem> allThemes, List<UserTestItem> userTests)
         {
             var userTestsByTestId = userTests.ToDictionary(ut => ut.GrammarTestId);
