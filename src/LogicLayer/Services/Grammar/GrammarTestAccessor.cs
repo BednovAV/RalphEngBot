@@ -1,12 +1,10 @@
 ﻿using DataAccessLayer.Interfaces;
 using Entities.Common;
 using Entities.Common.Grammar;
-using Entities.Navigation;
 using Helpers;
 using LogicLayer.Interfaces.Grammar;
 using System.Collections.Generic;
 using System.Linq;
-using Telegram.Bot.Types;
 
 namespace LogicLayer.Services.Grammar
 {

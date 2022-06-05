@@ -26,7 +26,6 @@ namespace DataAccessLayer.Core
                 db.SaveChanges();
             }
         }
-
         protected T UseContext<T>(Func<ApplicationContext, T> function)
         {
             using (var db = new ApplicationContext(ConnectionString))

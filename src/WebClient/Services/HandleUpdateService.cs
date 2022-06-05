@@ -5,11 +5,10 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace WebClient.Services
 {
-	public class HandleUpdateService
+    public class HandleUpdateService
 	{
         private readonly ITelegramBotClient _botClient;
         private readonly ILogger<HandleUpdateService> _logger;
